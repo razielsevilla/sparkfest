@@ -1,4 +1,4 @@
-# 4. Functional Requirements
+﻿# 4. Functional Requirements
 
 ## 4.1 User Stories
 

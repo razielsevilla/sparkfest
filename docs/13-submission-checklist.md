@@ -1,4 +1,4 @@
-# 13. SparkFest Submission Checklist
+﻿# 13. SparkFest Submission Checklist
 
 Cross-referenced against official SparkFest 2026 Elimination Round requirements. Use this as the final go/no-go list before July 2 submission.
 

@@ -1,4 +1,4 @@
-# 5. Non-Functional Requirements
+﻿# 5. Non-Functional Requirements
 
 | Category | Requirement | Rationale |
 |---|---|---|

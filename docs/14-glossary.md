@@ -1,4 +1,4 @@
-# 14. Appendix: Glossary of Filipino Terms Used in the App
+﻿# 14. Appendix: Glossary of Filipino Terms Used in the App
 
 | Filipino Term | Literal/Used Meaning | Where It Appears |
 |---|---|---|
@@ -11,4 +11,4 @@
 
 ---
 
-**Previous:** [13. Submission Checklist](./13-submission-checklist.md) · **Back to:** [Documentation Index](./README.md)
+**Previous:** [13. Submission Checklist](./13-submission-checklist.md) · **Back to:** [Documentation Index](../README.md)

@@ -1,4 +1,4 @@
-# 10. Alert & Notification Logic
+﻿# 10. Alert & Notification Logic
 
 This section consolidates the trigger conditions and message templates for all push notifications, so backend and frontend teams stay in sync.
 

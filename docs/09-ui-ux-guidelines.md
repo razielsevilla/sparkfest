@@ -1,4 +1,4 @@
-# 9. UI/UX Design Guidelines
+﻿# 9. UI/UX Design Guidelines
 
 ## 9.1 Design Principles
 

@@ -1,4 +1,4 @@
-# 11. Development Sprint Plan (June 28 – July 2)
+﻿# 11. Development Sprint Plan (June 28 – July 2)
 
 This plan assumes a small team (3–5 members) working in parallel tracks. Adjust assignments based on actual headcount, but preserve the sequencing — later days depend on earlier foundational work being done first.
 

@@ -1,4 +1,4 @@
-# 6. System Architecture
+﻿# 6. System Architecture
 
 ## 6.1 High-Level Architecture Overview
 

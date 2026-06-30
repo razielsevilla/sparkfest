@@ -1,4 +1,4 @@
-# 12. Testing Strategy
+﻿# 12. Testing Strategy
 
 ## 12.1 Test Scenarios — Scam Checker
 

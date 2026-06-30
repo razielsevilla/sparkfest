@@ -1,4 +1,4 @@
-# 1. Executive Summary
+﻿# 1. Executive Summary
 
 Gabay Sr. is a mobile-first application designed to address two interlinked problems affecting Filipino senior citizens: **social isolation** and **vulnerability to online scams**. Rather than treating these as separate features, the product is built around a single mechanism — a **Trusted Circle** of family members and volunteers who remain digitally present around the senior, providing both companionship and a protective layer against fraud.
 

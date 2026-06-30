@@ -1,4 +1,4 @@
-# 2. Problem Validation Summary
+﻿# 2. Problem Validation Summary
 
 This section summarizes the research basis for the product. Full citations and sources are maintained separately in the team's research log; this is a condensed reference for engineering and design decisions.
 

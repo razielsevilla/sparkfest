@@ -1,4 +1,4 @@
-# 8. API & Service Specifications
+﻿# 8. API & Service Specifications
 
 Since the backend is Firebase, most "API calls" are direct Firestore SDK reads/writes from Flutter rather than REST endpoints. Cloud Functions are used only where server-side logic (scheduling, Gemini calls) is required. This section documents both.
 

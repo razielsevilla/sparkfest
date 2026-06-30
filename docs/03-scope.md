@@ -1,4 +1,4 @@
-# 3. Scope: MVP Boundaries
+﻿# 3. Scope: MVP Boundaries
 
 Given the 4-day build window (June 28 – July 2), scope is deliberately constrained. Anything not listed under "In Scope" should be treated as a post-hackathon roadmap item, not a V1 deliverable.
 

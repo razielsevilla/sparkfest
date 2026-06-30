@@ -1,4 +1,4 @@
-# 7. Data Model
+﻿# 7. Data Model
 
 All collections live in Firestore (NoSQL document store). Below are the core collections, their fields, and relationships.
 
