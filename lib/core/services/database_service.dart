@@ -26,6 +26,10 @@ abstract class DatabaseService {
   Future<List<ScamCheck>> getScamChecks(String profileId);
   Stream<List<ScamCheck>> streamScamChecks(String profileId);
 
+  // Weekly Summary Operations
+  Future<void> saveWeeklySummary(String profileId, String summaryText, String moodTrend);
+  Stream<String?> streamLatestWeeklySummary(String profileId);
+
   // Alert Operations
   Future<void> createAlert(Alert alert);
   Future<void> resolveAlert(String alertId);

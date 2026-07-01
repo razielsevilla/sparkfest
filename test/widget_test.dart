@@ -63,6 +63,10 @@ class FakeDatabaseService implements DatabaseService {
   Future<void> resolveAlert(String alertId) async {}
   @override
   Stream<List<Alert>> streamAlertsForSenior(String profileId) => Stream.value([]);
+  @override
+  Future<void> saveWeeklySummary(String profileId, String summaryText, String moodTrend) async {}
+  @override
+  Stream<String?> streamLatestWeeklySummary(String profileId) => Stream.value(null);
 }
 
 void main() {

@@ -18,6 +18,7 @@ class FamilyDashboard extends StatefulWidget {
 
 class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isSummaryLoading = false;
 
   @override
   void initState() {
@@ -37,6 +38,113 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
     if (diff.inDays == 0) return "Check-in ngayon";
     if (diff.inDays == 1) return "Kahapon";
     return "${diff.inDays} araw ang nakalipas";
+  }
+
+  void _generateSummary() async {
+    setState(() => _isSummaryLoading = true);
+    try {
+      final senior = widget.appState.activeSenior;
+      if (senior != null) {
+        await widget.appState.generateAndSaveWeeklySummary(senior.fullName);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Matagumpay na nagenerate ang summary!'),
+              backgroundColor: AppTheme.primaryTeal,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('May error sa pag-generate: $e'),
+            backgroundColor: AppTheme.alertRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSummaryLoading = false);
+      }
+    }
+  }
+
+  void _showDemoSimulatorPanel() {
+    final senior = widget.appState.activeSenior;
+    if (senior == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Demo Simulation Tools'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Gamitin ito upang subukan ang mga background triggers ng mabilis para sa evaluation ng mga judges.',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final alertId = 'alert_sim_missed_${DateTime.now().millisecondsSinceEpoch}';
+                  final alert = Alert(
+                    id: alertId,
+                    seniorProfileId: senior.id,
+                    type: 'missed_checkin',
+                    message: '⚠️ Walang check-in mula kay ${senior.fullName} sa nakaraang 2 araw.',
+                    recipientIds: widget.appState.trustedCircle.map((m) => m.id).toList(),
+                    createdAt: DateTime.now(),
+                    resolved: false,
+                  );
+                  final messenger = ScaffoldMessenger.of(context);
+                  await widget.appState.databaseService.createAlert(alert);
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Naka-simulate ng Missed Check-In Alert!'), backgroundColor: AppTheme.primaryTeal),
+                  );
+                },
+                icon: const Icon(Icons.notifications_paused_outlined),
+                label: const Text('Simulate Missed Check-In'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final alertId = 'alert_sim_mood_${DateTime.now().millisecondsSinceEpoch}';
+                  final alert = Alert(
+                    id: alertId,
+                    seniorProfileId: senior.id,
+                    type: 'mood_decline',
+                    message: '⚠️ Si ${senior.fullName} ay parang malungkot nitong huling mga araw.',
+                    recipientIds: widget.appState.trustedCircle.map((m) => m.id).toList(),
+                    createdAt: DateTime.now(),
+                    resolved: false,
+                  );
+                  final messenger = ScaffoldMessenger.of(context);
+                  await widget.appState.databaseService.createAlert(alert);
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Naka-simulate ng Mood Decline Alert!'), backgroundColor: AppTheme.primaryTeal),
+                  );
+                },
+                icon: const Icon(Icons.mood_bad),
+                label: const Text('Simulate Mood Decline'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('TANGGAPIN'),
+            )
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -64,6 +172,11 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                 ],
               ),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.science_outlined),
+                  onPressed: _showDemoSimulatorPanel,
+                  tooltip: 'Demo Simulator Tools',
+                ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () => widget.appState.logOut(),
@@ -160,13 +273,31 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                   ),
                   const SizedBox(height: 12),
                   // Render a warm summary text
-                  const Text(
-                    'Si Lola Luz ay naging masaya sa pangkalahatan ngayong linggo. Nakipag-usap siya sa kanyang pamilya at nag-ehersisyo nang regular. Mayroong isang kahina-hinalang mensahe na na-scan ngunit napanatili natin ang kanyang kaligtasan. Patuloy na kumustahin si Lola!',
-                    style: TextStyle(fontSize: 16, height: 1.5, color: AppTheme.textPrimary),
+                  Text(
+                    widget.appState.latestWeeklySummary ??
+                        'Wala pang nabuong ulat para sa linggong ito. I-click ang button sa ibaba upang i-generate.',
+                    style: const TextStyle(fontSize: 16, height: 1.5, color: AppTheme.textPrimary),
                   ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _isSummaryLoading ? null : _generateSummary,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryTeal,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            icon: _isSummaryLoading
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  )
+                : const Icon(Icons.auto_awesome),
+            label: const Text('I-GENERATE ANG WEEKLY SUMMARY'),
           ),
           const SizedBox(height: 16),
           Card(

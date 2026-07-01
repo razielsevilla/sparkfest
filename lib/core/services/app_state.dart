@@ -5,6 +5,7 @@ import 'package:gabaysr/core/services/database_service.dart';
 import 'package:gabaysr/models/senior_profile.dart';
 import 'package:gabaysr/models/trusted_circle_member.dart';
 import 'package:gabaysr/models/alert.dart';
+import 'package:gabaysr/core/services/gemini_service.dart';
 
 enum AppMode { senior, family }
 
@@ -18,12 +19,14 @@ class AppState extends ChangeNotifier {
   List<SeniorProfile> _monitoredSeniors = [];
   List<TrustedCircleMember> _trustedCircle = [];
   List<Alert> _alerts = [];
+  String? _latestWeeklySummary;
   
   // Active listeners/subscriptions
   StreamSubscription? _authSubscription;
   StreamSubscription? _seniorsSubscription;
   StreamSubscription? _circleSubscription;
   StreamSubscription? _alertsSubscription;
+  StreamSubscription? _summarySubscription;
 
   AppState({required this.authService, required this.databaseService}) {
     // Listen for auth state changes
@@ -46,6 +49,7 @@ class AppState extends ChangeNotifier {
   List<SeniorProfile> get monitoredSeniors => _monitoredSeniors;
   List<TrustedCircleMember> get trustedCircle => _trustedCircle;
   List<Alert> get alerts => _alerts;
+  String? get latestWeeklySummary => _latestWeeklySummary;
 
   // Set App Mode (Senior Mode / Family Mode switcher)
   void setAppMode(AppMode mode) {
@@ -101,6 +105,26 @@ class AppState extends ChangeNotifier {
     await databaseService.addTrustedCircleMember(member);
   }
 
+  Future<void> generateAndSaveWeeklySummary(String seniorName) async {
+    if (_activeSenior == null) return;
+    final checkins = await databaseService.getCheckIns(_activeSenior!.id, limit: 7);
+    
+    // Call Gemini AI service
+    final aiService = GeminiService(); // reads API Key from env configs automatically
+    final summaryText = await aiService.generateWeeklySummary(seniorName, checkins);
+    
+    // Derive mood trend
+    String moodTrend = "Stable";
+    if (checkins.isNotEmpty) {
+      final happy = checkins.where((c) => c.mood == "Masaya").length;
+      final sad = checkins.where((c) => c.mood == "Malungkot").length;
+      if (happy > sad) moodTrend = "Improving";
+      if (sad > happy) moodTrend = "Declining";
+    }
+
+    await databaseService.saveWeeklySummary(_activeSenior!.id, summaryText, moodTrend);
+  }
+
   Future<void> resolveAlert(String alertId) async {
     await databaseService.resolveAlert(alertId);
   }
@@ -140,13 +164,20 @@ class AppState extends ChangeNotifier {
       _alerts = alertList;
       notifyListeners();
     });
+
+    _summarySubscription = databaseService.streamLatestWeeklySummary(seniorId).listen((summary) {
+      _latestWeeklySummary = summary;
+      notifyListeners();
+    });
   }
 
   void _clearSeniorSubscriptions() {
     _circleSubscription?.cancel();
     _alertsSubscription?.cancel();
+    _summarySubscription?.cancel();
     _trustedCircle = [];
     _alerts = [];
+    _latestWeeklySummary = null;
   }
 
   void _clearUserSession() {

@@ -254,4 +254,30 @@ class FirebaseService implements AuthService, DatabaseService {
         .snapshots()
         .map((snap) => snap.docs.map((d) => Alert.fromMap(d.data())).toList());
   }
+
+  @override
+  Future<void> saveWeeklySummary(String profileId, String summaryText, String moodTrend) async {
+    final summaryId = 'summary_${DateTime.now().millisecondsSinceEpoch}';
+    await _firestore.collection('weeklySummaries').doc(summaryId).set({
+      'id': summaryId,
+      'seniorProfileId': profileId,
+      'summaryText': summaryText,
+      'moodTrend': moodTrend,
+      'generatedAt': DateTime.now().toIso8601String(), // using ISO string for consistency
+    });
+  }
+
+  @override
+  Stream<String?> streamLatestWeeklySummary(String profileId) {
+    return _firestore
+        .collection('weeklySummaries')
+        .where('seniorProfileId', isEqualTo: profileId)
+        .orderBy('generatedAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snap) {
+          if (snap.docs.isEmpty) return null;
+          return snap.docs.first.data()['summaryText'] as String?;
+        });
+  }
 }
