@@ -6,6 +6,7 @@ import 'package:gabaysr/core/services/firebase_service.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/features/onboarding/login_screen.dart';
 import 'package:gabaysr/features/onboarding/create_profile_screen.dart';
+import 'package:gabaysr/features/checkin/senior_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,12 +60,14 @@ class MyApp extends StatelessWidget {
           activeTheme = AppTheme.familyTheme;
           activeHome = CreateProfileScreen(appState: appState);
         } else {
-          // If authenticated and profile exists, direct to the temporary Landing/Dashboard
-          // Switch theme context based on active mode
-          activeTheme = appState.appMode == AppMode.senior
-              ? AppTheme.seniorTheme
-              : AppTheme.familyTheme;
-          activeHome = MainAppLanding(appState: appState);
+          // Switch view based on active mode
+          if (appState.appMode == AppMode.senior) {
+            activeTheme = AppTheme.seniorTheme;
+            activeHome = SeniorHome(appState: appState);
+          } else {
+            activeTheme = AppTheme.familyTheme;
+            activeHome = MainAppLanding(appState: appState);
+          }
         }
 
         return MaterialApp(
