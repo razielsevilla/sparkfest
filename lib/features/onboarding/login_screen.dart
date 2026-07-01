@@ -170,13 +170,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: TextFormField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
-                                  maxLength: 11,
+                                  maxLength: 10,
                                   style: const TextStyle(
                                     fontFamily: 'Nunito Sans',
                                     fontSize: 20,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: '09XX-XXX-XXXX',
+                                    hintText: '9XX-XXX-XXXX',
                                     counterText: '',
                                     fillColor: Colors.white,
                                     filled: true,
@@ -201,8 +201,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       return 'Ilagay ang iyong numero';
                                     }
                                     final plainNum = value.replaceAll('-', '').trim();
-                                    if (plainNum.length < 11 || !plainNum.startsWith('09')) {
-                                      return 'Dapat magsimula sa 09 at may 11 digits';
+                                    if (plainNum.length != 10 || !plainNum.startsWith('9')) {
+                                      return 'Dapat magsimula sa 9 at may 10 digits';
                                     }
                                     return null;
                                   },
