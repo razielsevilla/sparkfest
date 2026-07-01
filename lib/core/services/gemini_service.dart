@@ -6,7 +6,10 @@ import 'package:gabaysr/models/checkin.dart';
 class GeminiService implements AiService {
   final String? apiKey;
 
-  GeminiService({this.apiKey});
+  GeminiService({String? apiKey})
+      : apiKey = (apiKey != null && apiKey.trim().isNotEmpty)
+            ? apiKey
+            : const String.fromEnvironment('GEMINI_API_KEY');
 
   @override
   Future<Map<String, String>> checkScamMessage(String messageText, {String? senderNumber}) async {
