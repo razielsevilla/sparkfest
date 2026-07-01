@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
-import 'package:gabaysr/features/checkin/checkin_flow.dart';
+import 'package:gabaysr/features/checkin/checkin_flowchart.dart';
 import 'package:gabaysr/features/scam_checker/scam_checker_ui.dart';
 
 class SeniorHome extends StatelessWidget {
