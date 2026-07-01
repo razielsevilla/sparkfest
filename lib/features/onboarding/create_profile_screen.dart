@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/senior_profile.dart';
+import 'package:gabaysr/models/trusted_circle_member.dart';
 import 'package:gabaysr/features/onboarding/add_circle_screen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
