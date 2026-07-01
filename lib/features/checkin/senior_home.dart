@@ -16,7 +16,6 @@ class SeniorHome extends StatelessWidget {
   static const Color _primaryContainerColor = Color(0xFF0F766E); // primary-container
   static const Color _textPrimaryColor = Color(0xFF1B1B1D); // on-surface
   static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
-  static const Color _borderColor = Color(0xFF6E7977); // outline
   static const Color _greenPillBg = Color(0xFFE6F4EA);
   static const Color _greenPillBorder = Color(0x3316A34B); // 20% opacity
   static const Color _greenPillText = Color(0xFF065F46);
@@ -213,26 +212,6 @@ class SeniorHome extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Switch to Family Dashboard
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          appState.setAppMode(AppMode.family);
-                        },
-                        icon: const Icon(Icons.swap_horiz, color: _borderColor),
-                        label: const Text(
-                          'Pumunta sa Family Dashboard',
-                          style: TextStyle(
-                            fontFamily: 'Nunito Sans',
-                            fontSize: 16,
-                            color: _borderColor,
-                            decoration: TextDecoration.underline,
-                          ),
                         ),
                       ),
                     ),
