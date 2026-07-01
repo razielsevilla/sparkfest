@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "773876636296",
+    "project_id": "gabay-sr-4ced2",
+    "storage_bucket": "gabay-sr-4ced2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:773876636296:android:dff9667323ba9717679d3d",
+        "android_client_info": {
+          "package_name": "com.gabaysr.gabaysr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo08QG-hduosIMQizu40uREbeMZ9OcuRo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
