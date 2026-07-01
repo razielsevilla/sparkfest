@@ -34,4 +34,7 @@ abstract class DatabaseService {
   Future<void> createAlert(Alert alert);
   Future<void> resolveAlert(String alertId);
   Stream<List<Alert>> streamAlertsForSenior(String profileId);
+
+  // FR-BR-05 / NFR-Security: Auto-purge scam checks older than 30 days
+  Future<int> purgeOldScamChecks(String profileId);
 }

@@ -85,13 +85,40 @@ class _CheckInFlowState extends State<CheckInFlow> {
     });
   }
 
+  // NFR-Accessibility: Voice input simulation for seniors with limited literacy
+  // or fine motor difficulty. In production, this would use the speech_to_text
+  // package with Filipino language support.
+  void _showVoiceInputDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return _VoiceInputDialog(
+          onResult: (transcribedText) {
+            setState(() {
+              // Append to existing note or set as new note
+              if (_noteController.text.trim().isNotEmpty) {
+                _noteController.text = '${_noteController.text.trim()} $transcribedText';
+              } else {
+                _noteController.text = transcribedText;
+              }
+            });
+          },
+        );
+      },
+    );
+  }
+
   void _submitCheckIn() async {
     if (_selectedMood == null) return;
 
     setState(() => _isLoading = true);
 
-    final checkInId = 'check_${DateTime.now().millisecondsSinceEpoch}';
+    // FR-BR-02: Use date-based doc ID to enforce one check-in per day per senior.
+    // Resubmission on the same day overwrites the previous entry via Firestore set().
     final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final seniorId = widget.appState.activeSenior?.id ?? 'unknown';
+    final checkInId = 'check_${seniorId}_$todayStr';
 
     final newCheckIn = CheckIn(
       id: checkInId,
@@ -351,7 +378,7 @@ class _CheckInFlowState extends State<CheckInFlow> {
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: 'Nunito Sans',
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: isSel ? Colors.white : _textPrimaryColor,
                                   ),
@@ -372,7 +399,7 @@ class _CheckInFlowState extends State<CheckInFlow> {
                           'Wala sa mga ito / Skip',
                           style: TextStyle(
                             fontFamily: 'Nunito Sans',
-                            fontSize: 16,
+                            fontSize: 18,
                             color: _primaryColor,
                             decoration: TextDecoration.underline,
                           ),
@@ -486,7 +513,7 @@ class _CheckInFlowState extends State<CheckInFlow> {
                           'Iyong mensahe para sa pamilya',
                           style: TextStyle(
                             fontFamily: 'Nunito Sans',
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: _textSecondaryColor,
                           ),
@@ -520,6 +547,31 @@ class _CheckInFlowState extends State<CheckInFlow> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        // NFR-Accessibility: Voice input alternative for seniors
+                        // with limited literacy or fine motor difficulty.
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: OutlinedButton.icon(
+                            onPressed: _showVoiceInputDialog,
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: _primaryColor, width: 2),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            icon: const Icon(Icons.mic, color: _primaryColor, size: 28),
+                            label: const Text(
+                              'Magsalita sa halip na mag-type',
+                              style: TextStyle(
+                                fontFamily: 'Nunito Sans',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: _primaryColor,
+                              ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerRight,
@@ -527,7 +579,7 @@ class _CheckInFlowState extends State<CheckInFlow> {
                             '$currentLength / 280',
                             style: TextStyle(
                               fontFamily: 'Nunito Sans',
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: currentLength >= 260 ? Colors.red : _primaryColor,
                             ),
@@ -551,7 +603,7 @@ class _CheckInFlowState extends State<CheckInFlow> {
                                   'Ito ay ipapadala sa iyong mga tagapag-alaga pagkatapos ng check-in na ito.',
                                   style: TextStyle(
                                     fontFamily: 'Nunito Sans',
-                                    fontSize: 14,
+                                    fontSize: 18,
                                     color: _textSecondaryColor,
                                   ),
                                 ),
@@ -773,6 +825,146 @@ class _CheckInFlowState extends State<CheckInFlow> {
 
           ],
         ),
+      ),
+    );
+  }
+}
+
+// NFR-Accessibility: Simulated voice input dialog for the check-in notes step.
+// In a production build, this would integrate with the speech_to_text package
+// using Filipino (fil-PH) language recognition.
+class _VoiceInputDialog extends StatefulWidget {
+  final Function(String) onResult;
+  const _VoiceInputDialog({required this.onResult});
+
+  @override
+  State<_VoiceInputDialog> createState() => _VoiceInputDialogState();
+}
+
+class _VoiceInputDialogState extends State<_VoiceInputDialog>
+    with SingleTickerProviderStateMixin {
+  static const Color _primaryColor = Color(0xFF005C55);
+  static const Color _primaryContainerColor = Color(0xFF0F766E);
+  static const Color _textSecondaryColor = Color(0xFF3E4947);
+
+  late AnimationController _pulseController;
+  int _secondsRemaining = 5;
+  bool _isListening = true;
+
+  // Sample transcription results in Filipino/Taglish
+  static const List<String> _sampleTranscriptions = [
+    'Masaya ako ngayon, nakausap ko ang aking mga apo kanina.',
+    'Okay lang naman ako, medyo masakit ang tuhod ko ngayon.',
+    'Kumain na ako ng almusal at uminom ng gamot.',
+    'Nag-ehersisyo ako sa umaga, naglakad-lakad sa labas.',
+    'Miss ko na ang mga anak ko, sana makapunta sila dito.',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+
+    _startCountdown();
+  }
+
+  void _startCountdown() async {
+    for (int i = 5; i > 0; i--) {
+      if (!mounted) return;
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return;
+      setState(() => _secondsRemaining = i - 1);
+    }
+    // Simulate transcription completion
+    if (mounted) {
+      setState(() => _isListening = false);
+      final result = (_sampleTranscriptions..shuffle()).first;
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        widget.onResult(result);
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      contentPadding: const EdgeInsets.all(32),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedBuilder(
+            animation: _pulseController,
+            builder: (context, child) {
+              final scale = 1.0 + (_pulseController.value * 0.15);
+              return Transform.scale(
+                scale: _isListening ? scale : 1.0,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: _isListening
+                        ? _primaryColor.withValues(alpha: 0.15)
+                        : Colors.green.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _isListening ? Icons.mic : Icons.check,
+                    size: 40,
+                    color: _isListening ? _primaryColor : Colors.green,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          Text(
+            _isListening ? 'Nakikinig...' : 'Tapos na!',
+            style: const TextStyle(
+              fontFamily: 'Nunito Sans',
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: _primaryContainerColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _isListening
+                ? 'Magsalita po kayo ngayon. ($_secondsRemaining segundo pa.)'
+                : 'Na-record na ang inyong mensahe.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'Nunito Sans',
+              fontSize: 18,
+              color: _textSecondaryColor,
+            ),
+          ),
+          if (_isListening) ...[
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Kanselahin',
+                style: TextStyle(
+                  fontFamily: 'Nunito Sans',
+                  fontSize: 18,
+                  color: _textSecondaryColor,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

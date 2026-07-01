@@ -161,6 +161,10 @@ class AppState extends ChangeNotifier {
   void _subscribeToSeniorData(String seniorId) {
     _clearSeniorSubscriptions();
 
+    // FR-BR-05 / NFR-Security: Purge scam check records older than 30 days
+    // on every session start to comply with data retention policy.
+    databaseService.purgeOldScamChecks(seniorId);
+
     _circleSubscription = databaseService.streamTrustedCircle(seniorId).listen((members) {
       _trustedCircle = members;
       notifyListeners();

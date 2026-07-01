@@ -228,7 +228,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
                                   TextFormField(
                                     controller: _messageController,
                                     maxLines: 5,
-                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 18),
                                     decoration: InputDecoration(
                                       hintText: 'I-paste dito ang natanggap na text o mensahe...',
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -249,7 +249,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
                                   TextFormField(
                                     controller: _senderController,
                                     keyboardType: TextInputType.phone,
-                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 18),
                                     decoration: InputDecoration(
                                       hintText: 'Halimbawa: 0917XXXXXXX',
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -351,7 +351,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
             text,
             style: const TextStyle(
               fontFamily: 'Nunito Sans',
-              fontSize: 16,
+              fontSize: 18,
               color: _textPrimaryColor,
             ),
           ),
@@ -421,7 +421,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
               reason,
               style: const TextStyle(
                 fontFamily: 'Nunito Sans',
-                fontSize: 16,
+                fontSize: 18,
                 color: _textPrimaryColor,
                 height: 1.4,
               ),
@@ -452,7 +452,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
               'Paalala: Ang pagsusuring ito ay gabay lamang. Manatiling mapagmatyag sa lahat ng oras.',
               style: TextStyle(
                 fontFamily: 'Nunito Sans',
-                fontSize: 14,
+                fontSize: 18,
                 fontStyle: FontStyle.italic,
                 color: _textSecondaryColor,
               ),

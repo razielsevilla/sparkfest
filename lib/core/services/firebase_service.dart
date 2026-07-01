@@ -290,4 +290,28 @@ class FirebaseService implements AuthService, DatabaseService {
           return docs.first.data()['summaryText'] as String?;
         });
   }
+
+  // FR-BR-05 / NFR-Security: Auto-purge scam-checked messages older than 30 days.
+  // Sensitive personal/financial data must not be retained beyond the audit window.
+  @override
+  Future<int> purgeOldScamChecks(String profileId) async {
+    final cutoff = DateTime.now().subtract(const Duration(days: 30));
+    final snap = await _firestore
+        .collection('scamChecks')
+        .where('seniorProfileId', isEqualTo: profileId)
+        .get();
+
+    int deletedCount = 0;
+    for (final doc in snap.docs) {
+      final createdAtStr = doc.data()['createdAt'] as String?;
+      if (createdAtStr != null) {
+        final createdAt = DateTime.tryParse(createdAtStr);
+        if (createdAt != null && createdAt.isBefore(cutoff)) {
+          await doc.reference.delete();
+          deletedCount++;
+        }
+      }
+    }
+    return deletedCount;
+  }
 }

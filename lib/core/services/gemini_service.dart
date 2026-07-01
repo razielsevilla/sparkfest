@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gabaysr/core/services/ai_service.dart';
@@ -39,7 +40,9 @@ class GeminiService implements AiService {
       );
 
       final prompt = "Message: \"$messageText\"\nSender number: \"${senderNumber ?? 'Unknown'}\"";
-      final response = await model.generateContent([Content.text(prompt)]);
+      // NFR-Performance: 4s timeout ensures <5s total response time budget.
+      final response = await model.generateContent([Content.text(prompt)])
+          .timeout(const Duration(seconds: 4));
       
       final textResult = response.text;
       if (textResult == null || textResult.isEmpty) {
@@ -98,7 +101,9 @@ class GeminiService implements AiService {
       ).join("\n");
 
       final prompt = "Senior's name: $seniorName\nThis week's check-ins:\n$checkInListString";
-      final response = await model.generateContent([Content.text(prompt)]);
+      // NFR-Performance: 4s timeout ensures <5s total response time budget.
+      final response = await model.generateContent([Content.text(prompt)])
+          .timeout(const Duration(seconds: 4));
 
       final textResult = response.text;
       if (textResult == null || textResult.isEmpty) {
