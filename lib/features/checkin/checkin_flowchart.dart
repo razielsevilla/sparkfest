@@ -3,6 +3,7 @@ import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/checkin.dart';
 import 'package:intl/intl.dart';
+import 'package:gabaysr/features/checkin/checkin_progress_bar.dart';
 
 class CheckInFlow extends StatefulWidget {
   final AppState appState;
@@ -134,52 +135,15 @@ class _CheckInFlowState extends State<CheckInFlow> {
         scaffoldBackgroundColor: _backgroundColor,
       ),
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Progress Bar
-                Container(
-                  width: double.infinity,
-                  height: 8,
-                  color: _surfaceContainerColor,
-                  alignment: Alignment.centerLeft,
-                  child: FractionallySizedBox(
-                    widthFactor: (_currentStep + 1) / 4.0,
-                    child: Container(
-                      color: _primaryColor,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      if (_currentStep > 0 && _currentStep < 3)
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: _textSecondaryColor, size: 28),
-                          onPressed: _previousPage,
-                        )
-                      else
-                        const SizedBox(width: 48),
-                      const SizedBox(width: 16),
-                      Text(
-                        _currentStep < 3 ? 'Hakbang ${_currentStep + 1} ng 3' : 'Kumpleto',
-                        style: const TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: _textSecondaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+        appBar: AppBar(
+          backgroundColor: _backgroundColor,
+          elevation: 0,
+          leading: (_currentStep > 0 && _currentStep < 3)
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back, color: _textSecondaryColor, size: 28),
+                  onPressed: _previousPage,
+                )
+              : null,
         ),
         body: PageView(
           controller: _pageController,
@@ -208,6 +172,8 @@ class _CheckInFlowState extends State<CheckInFlow> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const CheckInProgressBar(currentStep: 1),
+              const SizedBox(height: 32),
               const Text(
                 'Kumusta ang araw mo ngayon, Lola/Lolo?',
                 style: TextStyle(
@@ -319,6 +285,8 @@ class _CheckInFlowState extends State<CheckInFlow> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const CheckInProgressBar(currentStep: 2),
+                    const SizedBox(height: 32),
                     const Text(
                       'Ano ang mga ginawa mo ngayon?',
                       style: TextStyle(
@@ -469,7 +437,12 @@ class _CheckInFlowState extends State<CheckInFlow> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 440),
-                child: Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const CheckInProgressBar(currentStep: 3),
+                    const SizedBox(height: 32),
+                    Card(
                   elevation: 0,
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -590,10 +563,12 @@ class _CheckInFlowState extends State<CheckInFlow> {
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
+      ),
+    ),
 
         // Action Buttons
         Container(
@@ -796,64 +771,8 @@ class _CheckInFlowState extends State<CheckInFlow> {
               ),
             ),
 
-            // Bottom Navigation Bar
-            Container(
-              height: 88,
-              padding: const EdgeInsets.only(bottom: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _primaryContainerColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      elevation: 0,
-                    ),
-                    child: const Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.home_work, size: 28),
-                        Text('Gabay', style: TextStyle(fontFamily: 'Nunito Sans', fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                  _buildNavTab(Icons.monitor_heart, 'Kalusugan'),
-                  _buildNavTab(Icons.family_restroom, 'Pamilya'),
-                  _buildNavTab(Icons.emergency_share, 'SOS', isAlert: true),
-                ],
-              ),
-            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildNavTab(IconData icon, String label, {bool isAlert = false}) {
-    return InkWell(
-      onTap: () {},
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 28, color: isAlert ? Colors.red : _textSecondaryColor),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Nunito Sans',
-              fontSize: 12,
-              color: isAlert ? Colors.red : _textSecondaryColor,
-            ),
-          ),
-        ],
       ),
     );
   }

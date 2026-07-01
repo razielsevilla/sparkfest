@@ -333,26 +333,6 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
                 ),
               ),
 
-              // Bottom Navigation Bar
-              Container(
-                height: 88,
-                padding: const EdgeInsets.only(bottom: 12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavTab(Icons.home_work, 'Gabay', isActive: true),
-                    _buildNavTab(Icons.monitor_heart, 'Kalusugan'),
-                    _buildNavTab(Icons.family_restroom, 'Pamilya'),
-                    _buildNavTab(Icons.emergency_share, 'SOS', isAlert: true),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -483,40 +463,4 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
     );
   }
 
-  Widget _buildNavTab(IconData icon, String label, {bool isAlert = false, bool isActive = false}) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: isActive
-            ? BoxDecoration(
-                color: _primaryContainerColor,
-                borderRadius: BorderRadius.circular(12),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 28,
-              color: isActive
-                  ? Colors.white
-                  : (isAlert ? Colors.red : _textSecondaryColor),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontSize: 12,
-                color: isActive
-                    ? Colors.white
-                    : (isAlert ? Colors.red : _textSecondaryColor),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

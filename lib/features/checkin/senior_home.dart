@@ -3,6 +3,7 @@ import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/features/checkin/checkin_flowchart.dart';
 import 'package:gabaysr/features/scam_checker/scam_checker_ui.dart';
+import 'package:gabaysr/features/checkin/gabay_home_header.dart';
 
 class SeniorHome extends StatelessWidget {
   final AppState appState;
@@ -30,43 +31,9 @@ class SeniorHome extends StatelessWidget {
         scaffoldBackgroundColor: _backgroundColor,
       ),
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: _backgroundColor,
-          elevation: 0,
-          leadingWidth: 200,
-          leading: const Padding(
-            padding: EdgeInsets.only(left: 24.0),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                  ),
-                  child: Icon(Icons.elderly_outlined, color: _primaryColor, size: 28),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  'Magandang araw!',
-                  style: TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: _primaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined, color: _textSecondaryColor, size: 28),
-              onPressed: () {
-                // TODO: Open settings
-              },
-            ),
-            const SizedBox(width: 16),
-          ],
+        appBar: GabayHomeHeader(
+          appState: appState,
+          leadingIcon: Icons.elderly_outlined,
         ),
         body: SafeArea(
           child: Center(

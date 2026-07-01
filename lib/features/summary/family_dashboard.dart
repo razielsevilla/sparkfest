@@ -5,6 +5,7 @@ import 'package:gabaysr/models/checkin.dart';
 import 'package:gabaysr/models/scam_check.dart';
 import 'package:gabaysr/models/alert.dart';
 import 'package:intl/intl.dart';
+import 'package:gabaysr/features/checkin/gabay_home_header.dart';
 
 class FamilyDashboard extends StatefulWidget {
   final AppState appState;
@@ -159,83 +160,18 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
       child: ListenableBuilder(
         listenable: widget.appState,
         builder: (context, _) {
-          final senior = widget.appState.activeSenior;
           final alertsCount = widget.appState.alerts.where((a) => !a.resolved).length;
-          final seniorName = senior?.fullName ?? 'Roberto Santos';
 
           return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 1,
-              titleSpacing: 24,
-              leadingWidth: 0,
-              leading: const SizedBox.shrink(),
-              title: Row(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey.shade300,
-                        ),
-                        child: const Icon(Icons.person, color: _primaryColor),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        seniorName,
-                        style: const TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _primaryColor,
-                        ),
-                      ),
-                      const Text(
-                        'Active Now',
-                        style: TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 12,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            appBar: GabayHomeHeader(
+              appState: widget.appState,
+              leadingIcon: Icons.family_restroom,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.science_outlined, color: _textSecondaryColor, size: 28),
                   onPressed: _showDemoSimulatorPanel,
                   tooltip: 'Demo Simulator Tools',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.logout, color: _textSecondaryColor, size: 28),
-                  onPressed: () => widget.appState.logOut(),
-                  tooltip: 'Sign Out',
-                ),
-                const SizedBox(width: 16),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(56),
@@ -528,8 +464,8 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.2,
                 children: [
-                  _buildStatCard('Puso', '72', 'BPM', 'Normal', Icons.favorite, Colors.red),
-                  _buildStatCard('Tulog', '7.5', 'HRS', 'Sapat', Icons.bedtime, Colors.indigo),
+                  _buildStatCard('Puso', '--', 'BPM', 'Hindi nakakonekta', Icons.favorite, Colors.red),
+                  _buildStatCard('Tulog', '--', 'HRS', 'Walang data', Icons.bedtime, Colors.indigo),
                 ],
               ),
               const SizedBox(height: 24),
