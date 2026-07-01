@@ -270,8 +270,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Support / Help Links
                       Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               const Text(
                                 'Wala pang account? ',
