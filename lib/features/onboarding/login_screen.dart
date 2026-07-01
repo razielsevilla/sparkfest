@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController(text: "+63 ");
+  final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -23,17 +23,27 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final phone = _phoneController.text.trim();
-    if (phone.length < 10) {
+    String phone = _phoneController.text.trim().replaceAll(' ', '');
+    
+    // Format leading 09xxxxxxxxx to international +639xxxxxxxxx
+    if (phone.startsWith('0')) {
+      phone = '+63${phone.substring(1)}';
+    } else if (!phone.startsWith('+')) {
+      phone = '+63$phone';
+    }
+
+    if (phone.length < 12) { // +639xxxxxxxxx is 13 chars, +63xxxxxxx min 12
       setState(() {
-        _errorMessage = "Mangyaring ilagay ang wastong numero.";
+        _errorMessage = "Mangyaring ilagay ang wastong 11-digit number (e.g. 09123456789).";
         _isLoading = false;
       });
       return;
     }
 
+    final formattedPhone = phone;
+
     await widget.appState.sendOtpCode(
-      phone,
+      formattedPhone,
       onCodeSent: (verificationId) {
         setState(() => _isLoading = false);
         Navigator.push(
@@ -42,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context) => OtpScreen(
               appState: widget.appState,
               verificationId: verificationId,
-              phoneNumber: phone,
+              phoneNumber: formattedPhone,
             ),
           ),
         );
@@ -106,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.phone,
                   style: const TextStyle(fontSize: 16, letterSpacing: 1.2),
                   decoration: InputDecoration(
-                    hintText: "+63 912 345 6789",
+                    hintText: "0912 345 6789",
                     prefixIcon: const Icon(Icons.phone_android, color: AppTheme.primaryTeal),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

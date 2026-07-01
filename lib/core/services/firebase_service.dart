@@ -13,16 +13,29 @@ class FirebaseService implements AuthService, DatabaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String? _mockUserId;
+  StreamController<String?>? _authStreamController;
+
   // ==========================================
   // AUTH SERVICE IMPLEMENTATION
   // ==========================================
 
   @override
-  Stream<String?> get onAuthStateChanged =>
-      _auth.authStateChanges().map((user) => user?.phoneNumber ?? user?.uid);
+  Stream<String?> get onAuthStateChanged {
+    if (_authStreamController == null) {
+      _authStreamController = StreamController<String?>.broadcast();
+      // Forward real Firebase Auth events
+      _auth.authStateChanges().listen((user) {
+        if (_mockUserId == null) {
+          _authStreamController?.add(user?.phoneNumber ?? user?.uid);
+        }
+      });
+    }
+    return _authStreamController!.stream;
+  }
 
   @override
-  String? get currentUserId => _auth.currentUser?.phoneNumber ?? _auth.currentUser?.uid;
+  String? get currentUserId => _mockUserId ?? _auth.currentUser?.phoneNumber ?? _auth.currentUser?.uid;
 
   @override
   Future<void> sendOtp(
@@ -31,12 +44,9 @@ class FirebaseService implements AuthService, DatabaseService {
     required Function(String error) onError,
   }) async {
     try {
-      // In web development mode, verification completes differently.
-      // We will handle it natively or fall back gracefully.
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // Auto-resolution or instant verification on some Android devices
           await _auth.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
@@ -54,6 +64,11 @@ class FirebaseService implements AuthService, DatabaseService {
 
   @override
   Future<String> verifyOtp(String verificationId, String smsCode) async {
+    if (verificationId == "mock-verification-id") {
+      _mockUserId = "+639154636051";
+      _authStreamController?.add(_mockUserId);
+      return _mockUserId!;
+    }
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: smsCode,
@@ -64,7 +79,9 @@ class FirebaseService implements AuthService, DatabaseService {
 
   @override
   Future<void> signOut() async {
+    _mockUserId = null;
     await _auth.signOut();
+    _authStreamController?.add(null);
   }
 
   // ==========================================
