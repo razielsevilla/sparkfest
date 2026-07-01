@@ -24,6 +24,17 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
   // API Key state (development settings integration)
   static String? _devApiKey;
 
+  // Design tokens from Stitch export
+  static const Color _backgroundColor = Color(0xFFFAF8F5);
+  static const Color _primaryColor = Color(0xFF005C55); // primary
+  static const Color _primaryContainerColor = Color(0xFF0F766E); // primary-container
+  static const Color _textPrimaryColor = Color(0xFF1B1B1D); // on-surface
+  static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
+  static const Color _errorColor = Color(0xFFBA1A1A); // error
+  static const Color _errorContainerColor = Color(0xFFFFDAD6); // error-container
+  static const Color _onErrorContainerColor = Color(0xFF93000A); // on-error-container
+  static const Color _amberColor = Color(0xFFF59E0B); // warning amber
+
   void _checkMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
@@ -38,7 +49,7 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
 
     try {
       final res = await aiService.checkScamMessage(text, senderNumber: sender);
-      
+
       // Save check log in Firestore
       final checkId = 'scam_${DateTime.now().millisecondsSinceEpoch}';
       final scamLog = ScamCheck(
@@ -82,195 +93,17 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('May error sa pagsusuri: $e'), backgroundColor: AppTheme.alertRed),
+          SnackBar(
+            content: Text('May error sa pagsusuri: $e'),
+            backgroundColor: _errorColor,
+          ),
         );
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.seniorTheme,
-      child: Scaffold(
-        backgroundColor: AppTheme.backgroundWarm,
-        appBar: AppBar(
-          title: const Text('Scam Checker'),
-          backgroundColor: AppTheme.primaryTeal,
-          foregroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: _showDevSettings,
-              tooltip: 'Gemini API Key Setup',
-            )
-          ],
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Suriin ang kahina-hinalang Mensahe',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryTeal),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'I-paste ang SMS o text dito para malaman kung ito ay ligtas o isang scam.',
-                style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-
-              // Message Input
-              TextField(
-                controller: _messageController,
-                maxLines: 5,
-                style: const TextStyle(fontSize: 18),
-                decoration: const InputDecoration(
-                  hintText: 'I-paste o i-type ang mensahe dito...',
-                  border: OutlineInputBorder(),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Sender Number Input (Optional)
-              TextField(
-                controller: _senderController,
-                keyboardType: TextInputType.phone,
-                style: const TextStyle(fontSize: 18),
-                decoration: const InputDecoration(
-                  hintText: 'Numero ng nagpadala (opsyonal)',
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: _isLoading ? null : _checkMessage,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text('I-CHECK ANG MENSAHE'),
-              ),
-
-              if (_result != null) ...[
-                const SizedBox(height: 32),
-                _buildResultCard(),
-              ]
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResultCard() {
-    final risk = _result!['riskLevel'] ?? 'Katamtaman';
-    final reason = _result!['reasoning'] ?? '';
-    final action = _result!['recommendedAction'] ?? '';
-
-    Color cardColor;
-    Color textColor;
-    IconData icon;
-    String title;
-
-    if (risk == 'Mataas') {
-      cardColor = AppTheme.alertRed;
-      textColor = Colors.white;
-      icon = Icons.warning_amber_rounded;
-      title = '⚠️ MATAAS NA PANGANIB (SCAM)';
-    } else if (risk == 'Katamtaman') {
-      cardColor = AppTheme.secondaryAmber;
-      textColor = Colors.white;
-      icon = Icons.info_outline;
-      title = '💡 HINDI SIGURADO (MAG-INGAT)';
-    } else {
-      cardColor = Colors.green.shade700;
-      textColor = Colors.white;
-      icon = Icons.check_circle_outline;
-      title = '✅ MABABANG RISK (LIGTAS)';
-    }
-
-    return Card(
-      color: cardColor,
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: textColor, size: 36),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(color: Colors.white38, height: 24),
-            Text(
-              'Dahilan:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor.withAlpha(200)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              reason,
-              style: TextStyle(fontSize: 18, color: textColor),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Dapat Gawin:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor.withAlpha(200)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              action,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
-            ),
-            if (risk == 'Mataas') ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black12,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.notifications_active, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Awtomatikong na-notify ang iyong Trusted Circle.',
-                        style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ]
-          ],
-        ),
-      ),
-    );
   }
 
   void _showDevSettings() {
@@ -311,7 +144,10 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
                 });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Nai-save ang Gemini API Key!'), backgroundColor: AppTheme.primaryTeal),
+                  const SnackBar(
+                    content: Text('Nai-save ang Gemini API Key!'),
+                    backgroundColor: _primaryContainerColor,
+                  ),
                 );
               },
               child: const Text('I-SAVE'),
@@ -319,6 +155,368 @@ class _ScamCheckerUiState extends State<ScamCheckerUi> {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: AppTheme.seniorTheme.copyWith(
+        scaffoldBackgroundColor: _backgroundColor,
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: _backgroundColor,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _textSecondaryColor, size: 28),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Scam Checker',
+            style: TextStyle(
+              fontFamily: 'Nunito Sans',
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: _primaryColor,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings_outlined, color: _textSecondaryColor, size: 28),
+              onPressed: _showDevSettings,
+              tooltip: 'Gemini API Key Setup',
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Checker Inputs Card
+                          Card(
+                            elevation: 0,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: Colors.grey.shade200),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Nilalaman ng mensahe',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito Sans',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: _textSecondaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextFormField(
+                                    controller: _messageController,
+                                    maxLines: 5,
+                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                    decoration: InputDecoration(
+                                      hintText: 'I-paste dito ang natanggap na text o mensahe...',
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+
+                                  const Text(
+                                    'Numero ng nagpadala',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito Sans',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: _textSecondaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextFormField(
+                                    controller: _senderController,
+                                    keyboardType: TextInputType.phone,
+                                    style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                    decoration: InputDecoration(
+                                      hintText: 'Halimbawa: 0917XXXXXXX',
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 64,
+                                    child: ElevatedButton.icon(
+                                      onPressed: _isLoading ? null : _checkMessage,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _primaryContainerColor,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      icon: _isLoading
+                                          ? const SizedBox(
+                                              height: 18,
+                                              width: 18,
+                                              child: CircularProgressIndicator(
+                                                  color: Colors.white, strokeWidth: 2),
+                                            )
+                                          : const Icon(Icons.search),
+                                      label: const Text(
+                                        'I-CHECK ANG MENSAHE',
+                                        style: TextStyle(
+                                          fontFamily: 'Nunito Sans',
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Dynamic Result Card
+                          if (_result != null) ...[
+                            _buildResultCard(),
+                            const SizedBox(height: 24),
+                          ],
+
+                          // Educational Tips Card
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: _primaryContainerColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Tips para sa Inyong Seguridad',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito Sans',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: _primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildTipItem('Huwag mag-click ng mga link mula sa hindi kilalang numero.'),
+                                const SizedBox(height: 12),
+                                _buildTipItem(
+                                    'Ang mga bangko ay hindi kailanman hihingi ng iyong OTP sa pamamagitan ng tawag o text.'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom Navigation Bar
+              Container(
+                height: 88,
+                padding: const EdgeInsets.only(bottom: 12),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavTab(Icons.home_work, 'Gabay', isActive: true),
+                    _buildNavTab(Icons.monitor_heart, 'Kalusugan'),
+                    _buildNavTab(Icons.family_restroom, 'Pamilya'),
+                    _buildNavTab(Icons.emergency_share, 'SOS', isAlert: true),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.verified_user, color: _primaryColor, size: 20),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontFamily: 'Nunito Sans',
+              fontSize: 16,
+              color: _textPrimaryColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultCard() {
+    final risk = _result!['riskLevel'] ?? 'Katamtaman';
+    final reason = _result!['reasoning'] ?? '';
+    final action = _result!['recommendedAction'] ?? '';
+
+    Color leftBorderColor;
+    Color headerColor;
+    IconData icon;
+    String title;
+
+    if (risk == 'Mataas') {
+      leftBorderColor = _errorColor;
+      headerColor = _errorColor;
+      icon = Icons.warning;
+      title = 'MATAAS NA PANGANIB';
+    } else if (risk == 'Katamtaman') {
+      leftBorderColor = _amberColor;
+      headerColor = _amberColor;
+      icon = Icons.info;
+      title = 'HINDI SIGURADO';
+    } else {
+      leftBorderColor = Colors.green.shade700;
+      headerColor = Colors.green.shade700;
+      icon = Icons.check_circle;
+      title = 'MABABANG RISK';
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border(left: BorderSide(color: leftBorderColor, width: 8)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: headerColor, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontFamily: 'Nunito Sans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: headerColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              reason,
+              style: const TextStyle(
+                fontFamily: 'Nunito Sans',
+                fontSize: 16,
+                color: _textPrimaryColor,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _errorContainerColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                action,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Nunito Sans',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: _onErrorContainerColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            const Text(
+              'Paalala: Ang pagsusuring ito ay gabay lamang. Manatiling mapagmatyag sa lahat ng oras.',
+              style: TextStyle(
+                fontFamily: 'Nunito Sans',
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                color: _textSecondaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavTab(IconData icon, String label, {bool isAlert = false, bool isActive = false}) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: isActive
+            ? BoxDecoration(
+                color: _primaryContainerColor,
+                borderRadius: BorderRadius.circular(12),
+              )
+            : null,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 28,
+              color: isActive
+                  ? Colors.white
+                  : (isAlert ? Colors.red : _textSecondaryColor),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Nunito Sans',
+                fontSize: 12,
+                color: isActive
+                    ? Colors.white
+                    : (isAlert ? Colors.red : _textSecondaryColor),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
