@@ -2,24 +2,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
+import 'package:gabaysr/core/services/firebase_service.dart';
+import 'package:gabaysr/core/services/app_state.dart';
+import 'package:gabaysr/features/onboarding/login_screen.dart';
+import 'package:gabaysr/features/onboarding/create_profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
     if (kIsWeb) {
-      // Configuration for Web debugging
       await Firebase.initializeApp(
         options: const FirebaseOptions(
           apiKey: "AIzaSyCo08QG-hduosIMQizu40uREbeMZ9OcuRo",
-          appId: "1:773876636296:android:dff9667323ba9717679d3d", // fallback using Android client app ID
+          appId: "1:773876636296:android:dff9667323ba9717679d3d",
           messagingSenderId: "773876636296",
           projectId: "gabay-sr-4ced2",
           storageBucket: "gabay-sr-4ced2.firebasestorage.app",
         ),
       );
     } else {
-      // Reads configuration from native config files (google-services.json & GoogleService-Info.plist)
       await Firebase.initializeApp();
     }
     debugPrint("Firebase initialized successfully!");
@@ -27,73 +29,111 @@ void main() async {
     debugPrint("Firebase initialization failed: $e");
   }
 
-  runApp(const MyApp());
+  // Create FirebaseService instances
+  final firebaseService = FirebaseService();
+  final appState = AppState(
+    authService: firebaseService,
+    databaseService: firebaseService,
+  );
+
+  runApp(MyApp(appState: appState));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppState appState;
+
+  const MyApp({super.key, required this.appState});
 
   @override
   Widget build(BuildContext context) {
-    // Run the app in Senior Mode theme to test compilation and themes
-    return MaterialApp(
-      title: 'Gabay Sr.',
-      theme: AppTheme.seniorTheme,
-      home: const TestPage(),
-      debugShowCheckedModeBanner: false,
+    return ListenableBuilder(
+      listenable: appState,
+      builder: (context, _) {
+        ThemeData activeTheme;
+        Widget activeHome;
+
+        if (!appState.isAuthenticated) {
+          activeTheme = AppTheme.familyTheme;
+          activeHome = LoginScreen(appState: appState);
+        } else if (appState.monitoredSeniors.isEmpty) {
+          activeTheme = AppTheme.familyTheme;
+          activeHome = CreateProfileScreen(appState: appState);
+        } else {
+          // If authenticated and profile exists, direct to the temporary Landing/Dashboard
+          // Switch theme context based on active mode
+          activeTheme = appState.appMode == AppMode.senior
+              ? AppTheme.seniorTheme
+              : AppTheme.familyTheme;
+          activeHome = MainAppLanding(appState: appState);
+        }
+
+        return MaterialApp(
+          title: 'Gabay Sr.',
+          theme: activeTheme,
+          home: activeHome,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
 
-class TestPage extends StatelessWidget {
-  const TestPage({super.key});
+// Temporary Main Landing Screen for testing auth state transition
+class MainAppLanding extends StatelessWidget {
+  final AppState appState;
+
+  const MainAppLanding({super.key, required this.appState});
 
   @override
   Widget build(BuildContext context) {
+    final senior = appState.activeSenior;
+    final mode = appState.appMode;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gabay Sr. Foundation'),
+        title: Text(mode == AppMode.senior ? 'Senior Mode' : 'Family Dashboard'),
         backgroundColor: AppTheme.primaryTeal,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => appState.logOut(),
+          )
+        ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Kumusta, Lola at Lolo! 😊',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
+              Icon(
+                mode == AppMode.senior ? Icons.elderly : Icons.family_restroom,
+                size: 72,
+                color: AppTheme.primaryTeal,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Kumusta, ${senior?.fullName ?? "User"}!',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Ang Gabay Sr. ay matagumpay na nakakonekta sa Firebase!',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: AppTheme.textSecondary,
-                ),
-                textAlign: TextAlign.center,
+              const SizedBox(height: 10),
+              Text(
+                'Barangay: ${senior?.barangay ?? "N/A"}',
+                style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Gumagana ang Large Button!',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      backgroundColor: AppTheme.primaryTeal,
-                    ),
+                  // Toggle UI Theme/Mode for testing
+                  appState.setAppMode(
+                    mode == AppMode.senior ? AppMode.family : AppMode.senior,
                   );
                 },
-                child: const Text('SUBUKAN ANG BOTON'),
+                child: Text(mode == AppMode.senior
+                    ? 'LIPAT SA FAMILY MODE'
+                    : 'LIPAT SA SENIOR MODE'),
               ),
             ],
           ),

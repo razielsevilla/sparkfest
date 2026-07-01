@@ -1,30 +1,80 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:gabaysr/main.dart';
+import 'package:gabaysr/core/services/app_state.dart';
+import 'package:gabaysr/core/services/auth_service.dart';
+import 'package:gabaysr/core/services/database_service.dart';
+import 'package:gabaysr/models/senior_profile.dart';
+import 'package:gabaysr/models/trusted_circle_member.dart';
+import 'package:gabaysr/models/checkin.dart';
+import 'package:gabaysr/models/scam_check.dart';
+import 'package:gabaysr/models/alert.dart';
+import 'dart:async';
+
+// Mock simple classes to satisfy compiler in widget tests
+class FakeAuthService implements AuthService {
+  final _controller = StreamController<String?>.broadcast();
+  
+  @override
+  Stream<String?> get onAuthStateChanged => _controller.stream;
+
+  @override
+  String? get currentUserId => null;
+
+  @override
+  Future<void> sendOtp(String phoneNumber, {required Function(String verificationId) onCodeSent, required Function(String error) onError}) async {}
+
+  @override
+  Future<String> verifyOtp(String verificationId, String smsCode) async => "";
+
+  @override
+  Future<void> signOut() async {}
+}
+
+class FakeDatabaseService implements DatabaseService {
+  @override
+  Future<void> createSeniorProfile(SeniorProfile profile) async {}
+  @override
+  Future<SeniorProfile?> getSeniorProfile(String profileId) async => null;
+  @override
+  Stream<List<SeniorProfile>> streamSeniorsForMember(String memberPhone) => Stream.value([]);
+  @override
+  Future<void> updateLastCheckIn(String profileId, DateTime checkInDate) async {}
+  @override
+  Future<void> addTrustedCircleMember(TrustedCircleMember member) async {}
+  @override
+  Future<List<TrustedCircleMember>> getTrustedCircle(String profileId) async => [];
+  @override
+  Stream<List<TrustedCircleMember>> streamTrustedCircle(String profileId) => Stream.value([]);
+  @override
+  Future<void> logCheckIn(CheckIn checkIn) async {}
+  @override
+  Future<List<CheckIn>> getCheckIns(String profileId, {int limit = 7}) async => [];
+  @override
+  Stream<List<CheckIn>> streamCheckIns(String profileId) => Stream.value([]);
+  @override
+  Future<void> logScamCheck(ScamCheck check) async {}
+  @override
+  Future<List<ScamCheck>> getScamChecks(String profileId) async => [];
+  @override
+  Stream<List<ScamCheck>> streamScamChecks(String profileId) => Stream.value([]);
+  @override
+  Future<void> createAlert(Alert alert) async {}
+  @override
+  Future<void> resolveAlert(String alertId) async {}
+  @override
+  Stream<List<Alert>> streamAlertsForSenior(String profileId) => Stream.value([]);
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App starts and displays login flow', (WidgetTester tester) async {
+    final appState = AppState(
+      authService: FakeAuthService(),
+      databaseService: FakeDatabaseService(),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(MyApp(appState: appState));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the login screen is displayed and shows the app name
+    expect(find.text('Gabay Sr.'), findsOneWidget);
   });
 }
