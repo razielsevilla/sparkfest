@@ -299,6 +299,13 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                 _buildCircleTab(),
               ],
             ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                widget.appState.setAppMode(AppMode.senior);
+              },
+              backgroundColor: _primaryColor,
+              child: const Icon(Icons.elderly, color: Colors.white),
+            ),
           );
         },
       ),

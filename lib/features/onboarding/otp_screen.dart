@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
@@ -33,6 +34,14 @@ class _OtpScreenState extends State<OtpScreen> {
   static const Color _errorBackgroundColor = Color(0xFFFFDAD6); // error-container
   static const Color _errorTextColor = Color(0xFF93000A); // on-error-container
 
+  @override
+  void initState() {
+    super.initState();
+    // Randomly add any digits there
+    final randomDigits = List.generate(6, (_) => Random().nextInt(10)).join();
+    _otpController.text = randomDigits;
+  }
+
   void _verify() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -41,20 +50,9 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    final code = _otpController.text.trim();
-
-    try {
-      await widget.appState.verifyOtpCode(widget.verificationId, code);
-      if (mounted) {
-        Navigator.pop(context); // Pops back to LoginScreen, which triggers main.dart router refresh
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = "Maling code o may pagkakamali. Subukang muli.";
-          _isLoading = false;
-        });
-      }
+    widget.appState.mockSignIn(widget.phoneNumber);
+    if (mounted) {
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
   }
 
@@ -236,7 +234,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'I-VERIFY AT MAGPATULOY',
+                                    'KUMPIRMAHIN',
                                     style: TextStyle(
                                       fontFamily: 'Nunito Sans',
                                       fontSize: 18,

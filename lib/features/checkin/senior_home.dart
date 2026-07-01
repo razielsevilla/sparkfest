@@ -275,6 +275,13 @@ class SeniorHome extends StatelessWidget {
             ),
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            appState.setAppMode(AppMode.family);
+          },
+          backgroundColor: _primaryColor,
+          child: const Icon(Icons.family_restroom, color: Colors.white),
+        ),
       ),
     );
   }

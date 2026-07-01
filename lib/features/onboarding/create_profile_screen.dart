@@ -30,13 +30,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Default values if needed for design testing
-    _nameController.text = "Maria Clara de la Cruz";
-    _ageController.text = "72";
-    _barangayController.text = "San Lorenzo Village";
+    // Default values cleared for user input
+    _nameController.text = "";
+    _ageController.text = "";
+    _barangayController.text = "";
   }
 
-  void _next() {
+  void _next() async {
     if (!_formKey.currentState!.validate()) return;
 
     final seniorId = 'senior_${DateTime.now().millisecondsSinceEpoch}';
@@ -49,15 +49,32 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       createdAt: DateTime.now(),
     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddCircleScreen(
-          appState: widget.appState,
-          seniorProfile: newProfile,
-        ),
-      ),
+    // Create primary member (the currently logged in user)
+    final primaryMemberId = 'member_primary_${DateTime.now().millisecondsSinceEpoch}';
+    final primaryMember = TrustedCircleMember(
+      id: primaryMemberId,
+      seniorProfileId: seniorId,
+      name: 'Primary Monitor',
+      relationship: 'Pamilya',
+      phoneNumber: widget.appState.currentUserPhone ?? '+63 917 123 4567',
+      role: 'family',
     );
+
+    try {
+      await widget.appState.registerSenior(newProfile, primaryMember);
+      if (mounted) {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('May error sa pag-save: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -333,15 +350,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'PATULOY SA TRUSTED CIRCLE',
-                              style: TextStyle(
+                              'KUMPIRMAHIN',
+                              style: const TextStyle(
                                 fontFamily: 'Nunito Sans',
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(width: 12),
-                            Icon(Icons.arrow_forward),
+                            const SizedBox(width: 12),
+                            const Icon(Icons.arrow_forward),
                           ],
                         ),
                       ),

@@ -44,31 +44,16 @@ class _LoginScreenState extends State<LoginScreen> {
       phone = '+63$phone';
     }
 
-    await widget.appState.sendOtpCode(
-      phone,
-      onCodeSent: (verificationId) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OtpScreen(
-                appState: widget.appState,
-                verificationId: verificationId,
-                phoneNumber: phone,
-              ),
-            ),
-          );
-        }
-      },
-      onError: (error) {
-        if (mounted) {
-          setState(() {
-            _errorMessage = "May error sa pagpapadala: $error";
-            _isLoading = false;
-          });
-        }
-      },
+    setState(() => _isLoading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OtpScreen(
+          appState: widget.appState,
+          verificationId: 'dummy_verification_id',
+          phoneNumber: phone,
+        ),
+      ),
     );
   }
 

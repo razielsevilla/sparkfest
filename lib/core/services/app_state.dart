@@ -84,6 +84,12 @@ class AppState extends ChangeNotifier {
     await authService.verifyOtp(verificationId, smsCode);
   }
 
+  void mockSignIn(String phone) {
+    _currentUserPhone = phone;
+    _subscribeToSeniors(phone);
+    notifyListeners();
+  }
+
   Future<void> logOut() async {
     await authService.signOut();
   }
