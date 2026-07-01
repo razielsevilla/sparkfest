@@ -64,11 +64,6 @@ class FirebaseService implements AuthService, DatabaseService {
 
   @override
   Future<String> verifyOtp(String verificationId, String smsCode) async {
-    if (verificationId == "mock-verification-id") {
-      _mockUserId = "+639154636051";
-      _authStreamController?.add(_mockUserId);
-      return _mockUserId!;
-    }
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: smsCode,

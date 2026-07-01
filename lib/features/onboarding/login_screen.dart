@@ -265,30 +265,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 64,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            widget.appState.verifyOtpCode("mock-verification-id", "123456");
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _primaryColor,
-                            side: const BorderSide(color: _primaryColor, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'DEMO MODE: LAKTAWAN ANG OTP',
-                            style: TextStyle(
-                              fontFamily: 'Nunito Sans',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 32),
 
                       // Support / Help Links
