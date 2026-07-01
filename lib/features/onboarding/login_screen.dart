@@ -79,18 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(
-                  Icons.shield_outlined,
-                  size: 72,
-                  color: AppTheme.primaryTeal,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Gabay Sr.',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: AppTheme.primaryTeal,
-                      ),
-                  textAlign: TextAlign.center,
+                Image.asset(
+                  'assets/images/gabay-logo.png',
+                  height: 120,
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 8),
                 const Text(
