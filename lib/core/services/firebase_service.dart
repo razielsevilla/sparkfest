@@ -186,10 +186,10 @@ class FirebaseService implements AuthService, DatabaseService {
     final snap = await _firestore
         .collection('checkIns')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
         .get();
-    return snap.docs.map((d) => CheckIn.fromMap(d.data())).toList();
+    final list = snap.docs.map((d) => CheckIn.fromMap(d.data())).toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list.take(limit).toList();
   }
 
   @override
@@ -197,9 +197,12 @@ class FirebaseService implements AuthService, DatabaseService {
     return _firestore
         .collection('checkIns')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => CheckIn.fromMap(d.data())).toList());
+        .map((snap) {
+          final list = snap.docs.map((d) => CheckIn.fromMap(d.data())).toList();
+          list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
   @override
@@ -215,9 +218,10 @@ class FirebaseService implements AuthService, DatabaseService {
     final snap = await _firestore
         .collection('scamChecks')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('createdAt', descending: true)
         .get();
-    return snap.docs.map((d) => ScamCheck.fromMap(d.data())).toList();
+    final list = snap.docs.map((d) => ScamCheck.fromMap(d.data())).toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
   }
 
   @override
@@ -225,9 +229,12 @@ class FirebaseService implements AuthService, DatabaseService {
     return _firestore
         .collection('scamChecks')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => ScamCheck.fromMap(d.data())).toList());
+        .map((snap) {
+          final list = snap.docs.map((d) => ScamCheck.fromMap(d.data())).toList();
+          list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
   @override
@@ -250,9 +257,12 @@ class FirebaseService implements AuthService, DatabaseService {
     return _firestore
         .collection('alerts')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => Alert.fromMap(d.data())).toList());
+        .map((snap) {
+          final list = snap.docs.map((d) => Alert.fromMap(d.data())).toList();
+          list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
   @override
@@ -272,12 +282,17 @@ class FirebaseService implements AuthService, DatabaseService {
     return _firestore
         .collection('weeklySummaries')
         .where('seniorProfileId', isEqualTo: profileId)
-        .orderBy('generatedAt', descending: true)
-        .limit(1)
         .snapshots()
         .map((snap) {
           if (snap.docs.isEmpty) return null;
-          return snap.docs.first.data()['summaryText'] as String?;
+          // Sort in-memory to bypass composite index requirements
+          final docs = snap.docs.toList();
+          docs.sort((a, b) {
+            final aTime = a.data()['generatedAt'] as String? ?? '';
+            final bTime = b.data()['generatedAt'] as String? ?? '';
+            return bTime.compareTo(aTime); // descending order
+          });
+          return docs.first.data()['summaryText'] as String?;
         });
   }
 }
