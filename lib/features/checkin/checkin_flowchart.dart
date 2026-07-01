@@ -669,36 +669,191 @@ class _CheckInFlowState extends State<CheckInFlow> {
 
   // Step 4: Confirmation Screen
   Widget _buildConfirmationStep() {
-    return const Padding(
-      padding: EdgeInsets.all(24.0),
-      child: Center(
+    return Scaffold(
+      backgroundColor: _backgroundColor,
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle, size: 100, color: _primaryContainerColor),
-            SizedBox(height: 24),
-            Text(
-              'Salamat, Lola/Lolo! 😊',
-              style: TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: _primaryColor,
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Centered checkmark with nested circles
+                        Container(
+                          width: 128,
+                          height: 128,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _primaryContainerColor.withValues(alpha: 0.1),
+                          ),
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: 96,
+                            height: 96,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _primaryContainerColor,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 48,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Header Text
+                        const Text(
+                          'Salamat, Lola/Lolo!',
+                          style: TextStyle(
+                            fontFamily: 'Nunito Sans',
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            color: _primaryColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Subtext
+                        const Text(
+                          'Ipinaalam na natin sa iyong Trusted Circle.',
+                          style: TextStyle(
+                            fontFamily: 'Nunito Sans',
+                            fontSize: 20,
+                            color: _textSecondaryColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Status Update Card
+                        Card(
+                          elevation: 0,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(color: _borderColor.withValues(alpha: 0.3)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: _surfaceContainerColor,
+                                  child: const Icon(
+                                    Icons.family_restroom,
+                                    color: _primaryColor,
+                                    size: 28,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Status Update',
+                                        style: TextStyle(
+                                          fontFamily: 'Nunito Sans',
+                                          fontSize: 14,
+                                          color: _textSecondaryColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Mensahe naipadala na',
+                                        style: TextStyle(
+                                          fontFamily: 'Nunito Sans',
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: _textPrimaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
-            Text(
-              'Ipinaalam na natin sa iyong Trusted Circle na ligtas ka ngayon.',
-              style: TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontSize: 20,
-                color: _textPrimaryColor,
+
+            // Bottom Navigation Bar
+            Container(
+              height: 88,
+              padding: const EdgeInsets.only(bottom: 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
+                ],
               ),
-              textAlign: TextAlign.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryContainerColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      elevation: 0,
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.home_work, size: 28),
+                        Text('Gabay', style: TextStyle(fontFamily: 'Nunito Sans', fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  _buildNavTab(Icons.monitor_heart, 'Kalusugan'),
+                  _buildNavTab(Icons.family_restroom, 'Pamilya'),
+                  _buildNavTab(Icons.emergency_share, 'SOS', isAlert: true),
+                ],
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNavTab(IconData icon, String label, {bool isAlert = false}) {
+    return InkWell(
+      onTap: () {},
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 28, color: isAlert ? Colors.red : _textSecondaryColor),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Nunito Sans',
+              fontSize: 12,
+              color: isAlert ? Colors.red : _textSecondaryColor,
+            ),
+          ),
+        ],
       ),
     );
   }
