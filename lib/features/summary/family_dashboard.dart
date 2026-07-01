@@ -3,7 +3,6 @@ import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/checkin.dart';
 import 'package:gabaysr/models/scam_check.dart';
-import 'package:gabaysr/models/alert.dart';
 import 'package:intl/intl.dart';
 import 'package:gabaysr/features/checkin/gabay_home_header.dart';
 
@@ -75,82 +74,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
     }
   }
 
-  void _showDemoSimulatorPanel() {
-    final senior = widget.appState.activeSenior;
-    if (senior == null) return;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Demo Simulation Tools'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Gamitin ito upang subukan ang mga background triggers ng mabilis para sa evaluation ng mga judges.',
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  final alertId = 'alert_sim_missed_${DateTime.now().millisecondsSinceEpoch}';
-                  final alert = Alert(
-                    id: alertId,
-                    seniorProfileId: senior.id,
-                    type: 'missed_checkin',
-                    message: '⚠️ Walang check-in mula kay ${senior.fullName} sa nakaraang 2 araw.',
-                    recipientIds: widget.appState.trustedCircle.map((m) => m.id).toList(),
-                    createdAt: DateTime.now(),
-                    resolved: false,
-                  );
-                  final messenger = ScaffoldMessenger.of(context);
-                  await widget.appState.databaseService.createAlert(alert);
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Naka-simulate ng Missed Check-In Alert!'), backgroundColor: _primaryColor),
-                  );
-                },
-                icon: const Icon(Icons.notifications_paused_outlined),
-                label: const Text('Simulate Missed Check-In'),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  final alertId = 'alert_sim_mood_${DateTime.now().millisecondsSinceEpoch}';
-                  final alert = Alert(
-                    id: alertId,
-                    seniorProfileId: senior.id,
-                    type: 'mood_decline',
-                    message: '⚠️ Si ${senior.fullName} ay parang malungkot nitong huling mga araw.',
-                    recipientIds: widget.appState.trustedCircle.map((m) => m.id).toList(),
-                    createdAt: DateTime.now(),
-                    resolved: false,
-                  );
-                  final messenger = ScaffoldMessenger.of(context);
-                  await widget.appState.databaseService.createAlert(alert);
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Naka-simulate ng Mood Decline Alert!'), backgroundColor: _primaryColor),
-                  );
-                },
-                icon: const Icon(Icons.mood_bad),
-                label: const Text('Simulate Mood Decline'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('TANGGAPIN'),
-            )
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -166,13 +89,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
             appBar: GabayHomeHeader(
               appState: widget.appState,
               leadingIcon: Icons.family_restroom,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.science_outlined, color: _textSecondaryColor, size: 28),
-                  onPressed: _showDemoSimulatorPanel,
-                  tooltip: 'Demo Simulator Tools',
-                ),
-              ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(56),
                 child: Container(
@@ -453,146 +369,8 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // Quick Stats Bento Grid
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.2,
-                children: [
-                  _buildStatCard('Puso', '--', 'BPM', 'Hindi nakakonekta', Icons.favorite, Colors.red),
-                  _buildStatCard('Tulog', '--', 'HRS', 'Walang data', Icons.bedtime, Colors.indigo),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Pinakahuling Alerts
-              const Text(
-                'Pinakahuling Alerts',
-                style: TextStyle(
-                  fontFamily: 'Nunito Sans',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ...widget.appState.alerts.take(1).map((alert) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: _errorContainerColor.withValues(alpha: 0.2),
-                    border: Border.all(color: _errorColor.withValues(alpha: 0.1)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning, color: _errorColor),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              alert.message,
-                              style: const TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _textPrimaryColor,
-                              ),
-                            ),
-                            Text(
-                              DateFormat('jm').format(alert.createdAt),
-                              style: const TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 14,
-                                color: _textSecondaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-      String label, String value, String unit, String status, IconData icon, Color iconColor) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontSize: 14,
-                color: _textSecondaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              textBaseline: TextBaseline.alphabetic,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: _primaryColor,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  unit,
-                  style: const TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: _textSecondaryColor,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                Icon(icon, size: 16, color: iconColor),
-                const SizedBox(width: 6),
-                Text(
-                  status,
-                  style: const TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );
