@@ -22,7 +22,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
   // Design tokens from Stitch export
   static const Color _backgroundColor = Color(0xFFFCF8FB);
   static const Color _primaryColor = Color(0xFF005C55); // primary
-  static const Color _primaryContainerColor = Color(0xFF0F766E); // primary-container
   static const Color _textPrimaryColor = Color(0xFF1B1B1D); // on-surface
   static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
   static const Color _errorColor = Color(0xFFBA1A1A); // error
@@ -299,26 +298,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                 _buildAlertsTab(),
                 _buildCircleTab(),
               ],
-            ),
-            // Bottom navigation preview mockup styled safely
-            bottomNavigationBar: Container(
-              height: 88,
-              padding: const EdgeInsets.only(bottom: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavTab(Icons.home_work, 'Gabay'),
-                  _buildNavTab(Icons.monitor_heart, 'Kalusugan'),
-                  _buildNavTab(Icons.family_restroom, 'Pamilya', isActive: true),
-                  _buildNavTab(Icons.emergency_share, 'SOS', isAlert: true),
-                ],
-              ),
             ),
           );
         },
@@ -898,43 +877,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
           ),
         );
       },
-    );
-  }
-
-  Widget _buildNavTab(IconData icon, String label, {bool isAlert = false, bool isActive = false}) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: isActive
-            ? BoxDecoration(
-                color: _primaryContainerColor,
-                borderRadius: BorderRadius.circular(12),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 28,
-              color: isActive
-                  ? Colors.white
-                  : (isAlert ? Colors.red : _textSecondaryColor),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontSize: 12,
-                color: isActive
-                    ? Colors.white
-                    : (isAlert ? Colors.red : _textSecondaryColor),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
