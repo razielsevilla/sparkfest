@@ -26,7 +26,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
   static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
   static const Color _errorColor = Color(0xFFBA1A1A); // error
   static const Color _errorContainerColor = Color(0xFFFFDAD6); // error-container
-  static const Color _secondaryContainerColor = Color(0xFFFEA619); // secondary-container
 
   @override
   void initState() {
@@ -220,84 +219,15 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                       ),
                       const SizedBox(height: 24),
 
-                      // Mood Trend Section
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _primaryColor.withValues(alpha: 0.1),
-                            child: const Icon(Icons.mood, color: _primaryColor),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Nanatiling positibo ang mood ni Roberto ngayong linggo. Masigla ang kanyang pakikipag-usap sa pamilya.',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito Sans',
-                                    fontSize: 16,
-                                    color: _textPrimaryColor,
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-
-                      // Activity Log Section
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _secondaryContainerColor.withValues(alpha: 0.2),
-                            child: const Icon(Icons.directions_walk, color: _secondaryContainerColor),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Text(
-                              'Naabot ang target na 5,000 steps bawat araw. Maayos ang tulog sa gabi base sa heart rate monitoring.',
-                              style: TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 16,
-                                color: _textPrimaryColor,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-
-                      // Safety Note Section
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: _errorContainerColor.withValues(alpha: 0.2),
-                            child: const Icon(Icons.gpp_maybe, color: _errorColor),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Text(
-                              'May isang (1) kahina-hinalang tawag na na-block kahapon. Ligtas at walang naibigay na impormasyon.',
-                              style: TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 16,
-                                color: _textPrimaryColor,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
+                      // Real AI Summary text
+                      Text(
+                        latestSummary,
+                        style: const TextStyle(
+                          fontFamily: 'Nunito Sans',
+                          fontSize: 18,
+                          color: _textPrimaryColor,
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -326,43 +256,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Summary Text Detail Card
-              Card(
-                elevation: 0,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.grey.shade200),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Buong AI Summary Analysis',
-                        style: TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        latestSummary,
-                        style: const TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 16,
-                          color: _textPrimaryColor,
-                          height: 1.4,
                         ),
                       ),
                     ],
