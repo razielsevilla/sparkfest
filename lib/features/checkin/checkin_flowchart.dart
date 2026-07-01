@@ -459,6 +459,8 @@ class _CheckInFlowState extends State<CheckInFlow> {
 
   // Step 3: Optional Text Note Screen
   Widget _buildNoteStep() {
+    final currentLength = _noteController.text.length;
+
     return Column(
       children: [
         Expanded(
@@ -467,49 +469,133 @@ class _CheckInFlowState extends State<CheckInFlow> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Mensahe sa Pamilya',
-                      style: TextStyle(
-                        fontFamily: 'Nunito Sans',
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: _textPrimaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'I-type ang iyong mensahe o nararamdaman dito (opsyonal).',
-                      style: TextStyle(
-                        fontFamily: 'Nunito Sans',
-                        fontSize: 18,
-                        color: _textSecondaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                child: Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: _borderColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: _primaryColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.edit_note, color: _primaryColor, size: 28),
+                            ),
+                            const SizedBox(width: 16),
+                            const Expanded(
+                              child: Text(
+                                'Gusto mo ba mag-iwan ng mensahe?',
+                                style: TextStyle(
+                                  fontFamily: 'Nunito Sans',
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: _textPrimaryColor,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
 
-                    TextField(
-                      controller: _noteController,
-                      maxLines: 4,
-                      maxLength: 280,
-                      style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 18),
-                      decoration: InputDecoration(
-                        hintText: 'Sumulat ng mensahe dito...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        fillColor: Colors.white,
-                        filled: true,
-                      ),
+                        const Text(
+                          'Iyong mensahe para sa pamilya',
+                          style: TextStyle(
+                            fontFamily: 'Nunito Sans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _textSecondaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _noteController,
+                          maxLines: 4,
+                          maxLength: 280,
+                          onChanged: (text) {
+                            setState(() {}); // Rebuilds to update character count
+                          },
+                          style: const TextStyle(
+                            fontFamily: 'Nunito Sans',
+                            fontSize: 18,
+                            color: _textPrimaryColor,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Sumulat ng mensahe dito...',
+                            counterText: '',
+                            fillColor: Colors.white,
+                            filled: true,
+                            contentPadding: const EdgeInsets.all(16),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(color: Color(0xFF6B6B6B)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(color: _primaryColor, width: 2),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '$currentLength / 280',
+                            style: TextStyle(
+                              fontFamily: 'Nunito Sans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: currentLength >= 260 ? Colors.red : _primaryColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Contextual Tip
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _surfaceContainerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.info_outline, color: _primaryColor, size: 20),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Ito ay ipapadala sa iyong mga tagapag-alaga pagkatapos ng check-in na ito.',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito Sans',
+                                    fontSize: 14,
+                                    color: _textSecondaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
 
-        // Sticky Footer Action
+        // Action Buttons
         Container(
           padding: const EdgeInsets.all(24.0),
           decoration: const BoxDecoration(
@@ -527,27 +613,49 @@ class _CheckInFlowState extends State<CheckInFlow> {
                   SizedBox(
                     width: double.infinity,
                     height: 64,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       onPressed: _isLoading ? null : _submitCheckIn,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _primaryContainerColor,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: _isLoading
+                      icon: _isLoading
                           ? const SizedBox(
-                              height: 24,
-                              width: 24,
+                              height: 18,
+                              width: 18,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
-                          : const Text(
-                              'I-TAPOS ANG CHECK-IN',
-                              style: TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                          : const Icon(Icons.check_circle),
+                      label: const Text(
+                        'I-TAPOS ANG CHECK-IN',
+                        style: TextStyle(
+                          fontFamily: 'Nunito Sans',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _submitCheckIn,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _primaryColor,
+                        side: const BorderSide(color: _primaryColor, width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text(
+                        'Laktawan muna',
+                        style: TextStyle(
+                          fontFamily: 'Nunito Sans',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],
