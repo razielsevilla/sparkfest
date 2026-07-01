@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/features/checkin/checkin_flow.dart';
+import 'package:gabaysr/features/scam_checker/scam_checker_ui.dart';
 
 class SeniorHome extends StatelessWidget {
   final AppState appState;
@@ -116,11 +117,10 @@ class SeniorHome extends StatelessWidget {
                 // Button 2: Scam Checker (Action 2)
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to Scam Checker screen (to be developed)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Scam Checker is coming in Day 3!'),
-                        backgroundColor: AppTheme.primaryTeal,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScamCheckerUi(appState: appState),
                       ),
                     );
                   },

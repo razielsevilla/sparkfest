@@ -7,6 +7,7 @@ import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/features/onboarding/login_screen.dart';
 import 'package:gabaysr/features/onboarding/create_profile_screen.dart';
 import 'package:gabaysr/features/checkin/senior_home.dart';
+import 'package:gabaysr/features/summary/family_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +67,7 @@ class MyApp extends StatelessWidget {
             activeHome = SeniorHome(appState: appState);
           } else {
             activeTheme = AppTheme.familyTheme;
-            activeHome = MainAppLanding(appState: appState);
+            activeHome = FamilyDashboard(appState: appState);
           }
         }
 
@@ -81,67 +82,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Temporary Main Landing Screen for testing auth state transition
-class MainAppLanding extends StatelessWidget {
-  final AppState appState;
 
-  const MainAppLanding({super.key, required this.appState});
-
-  @override
-  Widget build(BuildContext context) {
-    final senior = appState.activeSenior;
-    final mode = appState.appMode;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(mode == AppMode.senior ? 'Senior Mode' : 'Family Dashboard'),
-        backgroundColor: AppTheme.primaryTeal,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => appState.logOut(),
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                mode == AppMode.senior ? Icons.elderly : Icons.family_restroom,
-                size: 72,
-                color: AppTheme.primaryTeal,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Kumusta, ${senior?.fullName ?? "User"}!',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Barangay: ${senior?.barangay ?? "N/A"}',
-                style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  // Toggle UI Theme/Mode for testing
-                  appState.setAppMode(
-                    mode == AppMode.senior ? AppMode.family : AppMode.senior,
-                  );
-                },
-                child: Text(mode == AppMode.senior
-                    ? 'LIPAT SA FAMILY MODE'
-                    : 'LIPAT SA SENIOR MODE'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:gabaysr/core/services/ai_service.dart';
 import 'package:gabaysr/models/checkin.dart';
 
@@ -8,10 +10,112 @@ class GeminiService implements AiService {
 
   @override
   Future<Map<String, String>> checkScamMessage(String messageText, {String? senderNumber}) async {
-    // Standardizing input text
+    // If no API key is configured, run the fallback local offline rule parser
+    if (apiKey == null || apiKey!.trim().isEmpty) {
+      return _localScamCheck(messageText, senderNumber: senderNumber);
+    }
+
+    try {
+      final model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: apiKey!,
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+        ),
+        systemInstruction: Content.system(
+          "You are a scam-detection assistant for a Filipino senior citizen safety app "
+          "called Gabay Sr. You analyze SMS messages, social media messages, or call "
+          "transcripts to determine if they are likely scams targeting Filipino seniors. "
+          "Respond ONLY in this exact JSON format, no other text:\n"
+          "{\n"
+          "  \"riskLevel\": \"Mataas\" | \"Katamtaman\" | \"Mababa\",\n"
+          "  \"reasoning\": \"<1-2 sentence explanation in simple Filipino/Taglish>\",\n"
+          "  \"recommendedAction\": \"<1 short, clear instruction in Filipino>\"\n"
+          "}"
+        ),
+      );
+
+      final prompt = "Message: \"$messageText\"\nSender number: \"${senderNumber ?? 'Unknown'}\"";
+      final response = await model.generateContent([Content.text(prompt)]);
+      
+      final textResult = response.text;
+      if (textResult == null || textResult.isEmpty) {
+        throw Exception("Empty response from Gemini API");
+      }
+
+      final Map<String, dynamic> data = jsonDecode(textResult.trim());
+      return {
+        "riskLevel": data['riskLevel'] ?? "Katamtaman",
+        "reasoning": data['reasoning'] ?? "Hindi matukoy nang husto ang mensahe.",
+        "recommendedAction": data['recommendedAction'] ?? "Magtanong sa iyong Trusted Circle."
+      };
+    } catch (e) {
+      // Clean fallback if API fails
+      return _localScamCheck(messageText, senderNumber: senderNumber);
+    }
+  }
+
+  @override
+  Future<String> generateWeeklySummary(String seniorName, List<CheckIn> weekCheckIns) async {
+    if (weekCheckIns.isEmpty) {
+      return "Wala kaming natanggap na check-in mula kay Lolo/Lola $seniorName ngayong linggo. Mas mabuting tawagan o kumustahin natin siya nang direkta.";
+    }
+
+    if (apiKey == null || apiKey!.trim().isEmpty) {
+      return _localWeeklySummary(seniorName, weekCheckIns);
+    }
+
+    try {
+      final model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: apiKey!,
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+        ),
+        systemInstruction: Content.system(
+          "You are a warm, caring assistant generating a weekly summary of a Filipino "
+          "senior citizen's wellbeing for their family members, who may live far away "
+          "(including overseas/OFW family). Write in a warm, conversational Filipino "
+          "or Taglish tone, as if a caring friend is giving the family an update.\n"
+          "Guidelines:\n"
+          "- 3 to 4 sentences only\n"
+          "- Highlight positive moments first\n"
+          "- Gently mention any days with low mood or missed check-ins, without alarm\n"
+          "- Do not use clinical or robotic language\n"
+          "Respond ONLY in this exact JSON format, no other text:\n"
+          "{\n"
+          "  \"summaryText\": \"<3-4 sentence warm summary in Filipino/Taglish>\",\n"
+          "  \"moodTrend\": \"Improving\" | \"Stable\" | \"Declining\"\n"
+          "}"
+        ),
+      );
+
+      final checkInListString = weekCheckIns.map((c) => 
+        "Date: ${c.date}, Mood: ${c.mood}, Activities: ${c.activities.join(', ')}, Note: ${c.note ?? 'None'}"
+      ).join("\n");
+
+      final prompt = "Senior's name: $seniorName\nThis week's check-ins:\n$checkInListString";
+      final response = await model.generateContent([Content.text(prompt)]);
+
+      final textResult = response.text;
+      if (textResult == null || textResult.isEmpty) {
+        throw Exception("Empty response");
+      }
+
+      final Map<String, dynamic> data = jsonDecode(textResult.trim());
+      return data['summaryText'] ?? _localWeeklySummary(seniorName, weekCheckIns);
+    } catch (e) {
+      return _localWeeklySummary(seniorName, weekCheckIns);
+    }
+  }
+
+  // ==========================================
+  // LOCAL FALLBACK GENERATORS
+  // ==========================================
+
+  Map<String, String> _localScamCheck(String messageText, {String? senderNumber}) {
     final text = messageText.toLowerCase();
 
-    // 1. Phishing & OTP / PIN request checks
     if (text.contains("otp") || text.contains("pin code") || text.contains("one-time pin") || text.contains("one time pin")) {
       return {
         "riskLevel": "Mataas",
@@ -20,7 +124,6 @@ class GeminiService implements AiService {
       };
     }
 
-    // 2. Grandchild/Apo impersonation scam checks
     if ((text.contains("apo") || text.contains("lola") || text.contains("lolo") || text.contains("mama") || text.contains("papa")) &&
         (text.contains("padala") || text.contains("pera") || text.contains("wallet") || text.contains("gcash") || text.contains("ospital") || text.contains("pulis"))) {
       return {
@@ -30,7 +133,6 @@ class GeminiService implements AiService {
       };
     }
 
-    // 3. Fake raffle or prize notification checks
     if ((text.contains("nanalo") || text.contains("congratulations") || text.contains("raffle") || text.contains("panalo")) &&
         (text.contains("claim") || text.contains("gcash") || text.contains("puntos") || text.contains("piso") || text.contains("pension"))) {
       return {
@@ -40,7 +142,6 @@ class GeminiService implements AiService {
       };
     }
 
-    // 4. Fake investment pattern checks
     if (text.contains("invest") || text.contains("crypto") || text.contains("guaranteed") || text.contains("doble ang pera") || text.contains("kumita")) {
       if (text.contains("returns") || text.contains("tuyo") || text.contains("kita") || text.contains("easy money")) {
         return {
@@ -51,7 +152,6 @@ class GeminiService implements AiService {
       }
     }
 
-    // 5. Normal friendly or family pattern checks (Mababa risk)
     if (text.contains("mama") || text.contains("salamat") || text.contains("bukas") || text.contains("kumain") || text.contains("gamot") || text.contains("kamusta")) {
       return {
         "riskLevel": "Mababa",
@@ -60,7 +160,6 @@ class GeminiService implements AiService {
       };
     }
 
-    // Default Katamtaman/Caution for ambiguous text
     return {
       "riskLevel": "Katamtaman",
       "reasoning": "Hindi namin matukoy nang lubusan kung ito ay ligtas. Mag-ingat kung ang mensahe ay humihingi ng anumang aksyon o naglalaman ng link.",
@@ -68,12 +167,7 @@ class GeminiService implements AiService {
     };
   }
 
-  @override
-  Future<String> generateWeeklySummary(String seniorName, List<CheckIn> weekCheckIns) async {
-    if (weekCheckIns.isEmpty) {
-      return "Wala kaming natanggap na check-in mula kay Lolo/Lola $seniorName ngayong linggo. Mas mabuting tawagan o kumustahin natin siya nang direkta.";
-    }
-
+  String _localWeeklySummary(String seniorName, List<CheckIn> weekCheckIns) {
     int happyCount = weekCheckIns.where((c) => c.mood == "Masaya").length;
     int sadCount = weekCheckIns.where((c) => c.mood == "Malungkot").length;
     int stableCount = weekCheckIns.where((c) => c.mood == "Okay lang").length;
