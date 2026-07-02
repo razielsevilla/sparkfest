@@ -7,12 +7,14 @@ class OtpScreen extends StatefulWidget {
   final AppState appState;
   final String verificationId;
   final String phoneNumber;
+  final bool userExists;
 
   const OtpScreen({
     super.key,
     required this.appState,
     required this.verificationId,
     required this.phoneNumber,
+    required this.userExists,
   });
 
   @override
@@ -50,10 +52,20 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    widget.appState.mockSignIn(widget.phoneNumber);
-    await Future.microtask(() {});
-    if (mounted) {
-      Navigator.pop(context);
+    try {
+      // 1. Perform mock sign in (persists session)
+      widget.appState.mockSignIn(widget.phoneNumber);
+
+      if (mounted) {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'May error sa pag-verify: $e';
+        });
+      }
     }
   }
 

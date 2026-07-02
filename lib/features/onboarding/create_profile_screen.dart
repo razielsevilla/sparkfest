@@ -18,6 +18,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _barangayController = TextEditingController();
+  bool _isLoading = false;
 
   // Design tokens from Stitch export
   static const Color _backgroundColor = Color(0xFFFAF8F5);
@@ -36,8 +37,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     _barangayController.text = "";
   }
 
-  void _next() {
+  void _next() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
 
     final seniorId = 'senior_${DateTime.now().millisecondsSinceEpoch}';
     final newProfile = SeniorProfile(
@@ -49,15 +52,28 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       createdAt: DateTime.now(),
     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddCircleScreen(
-          appState: widget.appState,
-          seniorProfile: newProfile,
-        ),
-      ),
-    );
+    try {
+      await widget.appState.createSeniorProfileOnly(newProfile);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddCircleScreen(
+              appState: widget.appState,
+              seniorProfile: newProfile,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('May error sa pag-save: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -320,7 +336,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       width: double.infinity,
                       height: 72,
                       child: ElevatedButton(
-                        onPressed: _next,
+                        onPressed: _isLoading ? null : _next,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _primaryColor,
                           foregroundColor: Colors.white,
@@ -329,21 +345,30 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           ),
                           elevation: 2,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'KUMPIRMAHIN',
-                              style: const TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'KUMPIRMAHIN',
+                                    style: TextStyle(
+                                      fontFamily: 'Nunito Sans',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Icon(Icons.arrow_forward),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Icon(Icons.arrow_forward),
-                          ],
-                        ),
                       ),
                     ),
                   ),

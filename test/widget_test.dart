@@ -38,6 +38,8 @@ class FakeDatabaseService implements DatabaseService {
   @override
   Stream<List<SeniorProfile>> streamSeniorsForMember(String memberPhone) => Stream.value([]);
   @override
+  Future<List<SeniorProfile>> getSeniorsForMember(String memberPhone) async => [];
+  @override
   Future<void> updateLastCheckIn(String profileId, DateTime checkInDate) async {}
   @override
   Future<void> addTrustedCircleMember(TrustedCircleMember member) async {}

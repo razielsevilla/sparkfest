@@ -1,4 +1,4 @@
-﻿# Gabay Sr. — Software Documentation
+﻿# Quatronizze - Gabay Sr.
 
 This folder contains the full software documentation for **Gabay Sr.**, a companionship and scam-protection mobile application for Filipino senior citizens, built for **SparkFest 2026** (GDG PUP).
 
@@ -20,6 +20,18 @@ This folder contains the full software documentation for **Gabay Sr.**, a compan
     A built-in message checker that analyzes suspicious texts for common Philippine scam patterns, delivering an easy-to-understand risk verdict to the senior.
 * **Automated Alerts & Summaries**
     The Trusted Circle receives AI-generated weekly companionship summaries in a warm tone, as well as immediate push notifications if a high-risk scam is detected or if a senior misses two consecutive daily check-ins.
+
+---
+
+## Quatronizze Members
+
+| Name | Role |
+|------|------|
+| Raziel Lloyd Sevilla | Project Manager - Lead Researcher |
+| Jericho Varde | Lead Developer |
+| Charles Platon | Web Developer |
+| Paul John Palamara | Web Developer |
+
 
 ---
 
