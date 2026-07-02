@@ -122,8 +122,15 @@
 }
 
 .iconWrap {
-  font-size: 2.5rem;
-  line-height: 1;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--icon-color, #5eead4);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   filter: drop-shadow(0 0 12px var(--neon-start, rgba(20, 184, 166, 0.4)));
   transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -150,18 +157,21 @@
   --neon-start: rgba(20, 184, 166, 0.4);
   --neon-end: rgba(20, 184, 166, 0.02);
   --glow-color: rgba(20, 184, 166, 0.25);
+  --icon-color: #2dd4bf;
 }
 
 .amber {
   --neon-start: rgba(245, 158, 11, 0.4);
   --neon-end: rgba(245, 158, 11, 0.02);
   --glow-color: rgba(245, 158, 11, 0.25);
+  --icon-color: #fbbf24;
 }
 
 .blue {
   --neon-start: rgba(59, 130, 246, 0.4);
   --neon-end: rgba(59, 130, 246, 0.02);
   --glow-color: rgba(59, 130, 246, 0.25);
+  --icon-color: #93c5fd;
 }
 
 /* ── Responsive ── */

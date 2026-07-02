@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Heart, Shield, Star } from "lucide-react";
+import { Heart, Shield, ShieldCheck, HeartHandshake, Star } from "lucide-react";
 import styles from "./CTA.module.css";
 
 export default function CTA() {
@@ -53,6 +53,10 @@ export default function CTA() {
         <div className={styles.contentGrid}>
           {/* Left: Text & Action */}
           <div className={`${styles.textContent} reveal`}>
+            <div className={styles.brandBadge}>
+              <ShieldCheck size={16} strokeWidth={2} />
+              <span>GABAY.SR</span>
+            </div>
             <h2>
               Be Part of Every Senior&apos;s <br />
               <span className={styles.textHighlight}>Trusted Circle</span>
@@ -71,8 +75,12 @@ export default function CTA() {
           {/* Right: Icon Cluster */}
           <div className={`${styles.iconCluster} reveal`} style={{ transitionDelay: '0.2s' }}>
             <div className={styles.clusterCenter}>
-              <div className={styles.shieldBase}></div>
-              <div className={styles.heartOverlay}></div>
+              <div className={styles.shieldBase}>
+                <ShieldCheck size={84} strokeWidth={1.8} />
+              </div>
+              <div className={styles.heartOverlay}>
+                <HeartHandshake size={36} strokeWidth={1.8} />
+              </div>
               
               {/* Orbiting elements */}
               <div className={styles.orbitCircle} />
