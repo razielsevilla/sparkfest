@@ -28,10 +28,10 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {/* Animated background blobs */}
-        <div className="bg-blobs" aria-hidden="true">
-          <div className="blob blob-1" />
-          <div className="blob blob-2" />
-          <div className="blob blob-3" />
+        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="absolute rounded-full blur-[100px] opacity-30 animate-blob-float w-[600px] h-[600px] bg-primary-light -top-[15%] -left-[10%]" />
+          <div className="absolute rounded-full blur-[100px] opacity-30 animate-blob-float w-[500px] h-[500px] bg-secondary top-[30%] -right-[10%] [animation-delay:-7s] [animation-duration:25s]" />
+          <div className="absolute rounded-full blur-[100px] opacity-30 animate-blob-float w-[450px] h-[450px] bg-primary -bottom-[10%] left-[20%] [animation-delay:-14s] [animation-duration:22s]" />
         </div>
         {children}
       </body>
