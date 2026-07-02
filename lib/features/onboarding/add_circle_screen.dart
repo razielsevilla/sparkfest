@@ -55,21 +55,7 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Create primary member (the currently logged in user)
-      final primaryMemberId = 'member_primary_${DateTime.now().millisecondsSinceEpoch}';
-      final primaryMember = TrustedCircleMember(
-        id: primaryMemberId,
-        seniorProfileId: widget.seniorProfile.id,
-        name: 'Primary Monitor',
-        relationship: 'Pamilya',
-        phoneNumber: widget.appState.currentUserPhone ?? '',
-        role: 'family',
-      );
-
-      // 2. Save senior profile and primary member in Firestore
-      await widget.appState.registerSenior(widget.seniorProfile, primaryMember);
-
-      // 3. Save the entered circle member
+      // 1. Create the entered circle member
       final enteredMemberId = 'member_${DateTime.now().millisecondsSinceEpoch}';
       final relationshipLabel = _relationships.firstWhere((r) => r['value'] == _selectedRelationship)['label']!;
       final enteredMember = TrustedCircleMember(
@@ -80,7 +66,9 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
         phoneNumber: _phoneController.text.trim(),
         role: _selectedRole,
       );
-      await widget.appState.inviteCircleMember(enteredMember);
+
+      // 2. Save senior profile and this entered member in Firestore
+      await widget.appState.registerSenior(widget.seniorProfile, enteredMember);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
