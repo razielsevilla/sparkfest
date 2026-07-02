@@ -19,7 +19,6 @@ class AddCircleScreen extends StatefulWidget {
 }
 
 class _AddCircleScreenState extends State<AddCircleScreen> {
-  final List<TrustedCircleMember> _additionalMembers = [];
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
@@ -34,10 +33,6 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
   static const Color _primaryContainerColor = Color(0xFF0F766E); // primary-container
   static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
   static const Color _surfaceContainerColor = Color(0xFFF0EDEF); // surface-container
-  static const Color _secondaryFixedColor = Color(0xFFFFDDB8); // secondary-fixed
-  static const Color _primaryFixedColor = Color(0xFF9CF2E8); // primary-fixed
-  static const Color _onSecondaryFixedColor = Color(0xFF2A1700); // on-secondary-fixed
-  static const Color _onPrimaryFixedColor = Color(0xFF00201d); // on-primary-fixed
   static const Color _errorColor = Color(0xFFBA1A1A); // error
 
   final List<Map<String, String>> _relationships = [
@@ -51,65 +46,11 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
   @override
   void initState() {
     super.initState();
-    // Default seed members to match design template if list is empty
-    _additionalMembers.addAll([
-      TrustedCircleMember(
-        id: 'member_default_1',
-        seniorProfileId: widget.seniorProfile.id,
-        name: 'Maria Santos',
-        relationship: 'Anak',
-        phoneNumber: '0917 123 4567',
-        role: 'family',
-      ),
-      TrustedCircleMember(
-        id: 'member_default_2',
-        seniorProfileId: widget.seniorProfile.id,
-        name: 'Juan Dela Cruz',
-        relationship: 'Volunteer',
-        phoneNumber: '0918 987 6543',
-        role: 'volunteer',
-      ),
-    ]);
-  }
-
-  void _addMemberToList() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final memberId = 'member_${DateTime.now().millisecondsSinceEpoch}';
-    final relationshipLabel = _relationships.firstWhere((r) => r['value'] == _selectedRelationship)['label']!;
-
-    final newMember = TrustedCircleMember(
-      id: memberId,
-      seniorProfileId: widget.seniorProfile.id,
-      name: _nameController.text.trim(),
-      relationship: relationshipLabel,
-      phoneNumber: _phoneController.text.trim(),
-      role: _selectedRole,
-    );
-
-    setState(() {
-      _additionalMembers.add(newMember);
-      _nameController.clear();
-      _phoneController.clear();
-      _selectedRelationship = 'anak';
-      _selectedRole = 'family';
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Naidagdag ang miyembro sa listahan!'),
-        backgroundColor: _primaryColor,
-      ),
-    );
-  }
-
-  void _removeMember(int index) {
-    setState(() {
-      _additionalMembers.removeAt(index);
-    });
   }
 
   void _saveAndFinish() async {
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() => _isLoading = true);
 
     try {
@@ -127,12 +68,18 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
       // 2. Save senior profile and primary member in Firestore
       await widget.appState.registerSenior(widget.seniorProfile, primaryMember);
 
-      // 3. Save any additional members
-      for (var member in _additionalMembers) {
-        // Skip default mock items when committing to real Firestore
-        if (member.id.startsWith('member_default_')) continue;
-        await widget.appState.inviteCircleMember(member);
-      }
+      // 3. Save the entered circle member
+      final enteredMemberId = 'member_${DateTime.now().millisecondsSinceEpoch}';
+      final relationshipLabel = _relationships.firstWhere((r) => r['value'] == _selectedRelationship)['label']!;
+      final enteredMember = TrustedCircleMember(
+        id: enteredMemberId,
+        seniorProfileId: widget.seniorProfile.id,
+        name: _nameController.text.trim(),
+        relationship: relationshipLabel,
+        phoneNumber: _phoneController.text.trim(),
+        role: _selectedRole,
+      );
+      await widget.appState.inviteCircleMember(enteredMember);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -166,44 +113,6 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
         scaffoldBackgroundColor: _backgroundColor,
       ),
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: _backgroundColor,
-          elevation: 0,
-          leadingWidth: 200,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 24.0),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.person, color: _primaryColor),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Magandang araw!',
-                  style: TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: _primaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined, color: _primaryColor, size: 28),
-              onPressed: () {},
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
@@ -252,7 +161,7 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
                               const SizedBox(height: 8),
                               TextFormField(
                                 controller: _nameController,
-                                style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 18),
                                 decoration: InputDecoration(
                                   hintText: 'I-type ang pangalan',
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -306,7 +215,7 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
                               TextFormField(
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
-                                style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 16),
+                                style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 18),
                                 decoration: InputDecoration(
                                   hintText: '09XX XXX XXXX',
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -394,136 +303,35 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
                               ),
                               const SizedBox(height: 24),
 
-                              // I-SALI SA CIRCLE Button
-                              OutlinedButton.icon(
-                                onPressed: _addMemberToList,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: _primaryColor,
-                                  side: const BorderSide(color: _primaryColor, width: 2),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              // Submit/Finish Button
+                              ElevatedButton.icon(
+                                onPressed: _isLoading ? null : _saveAndFinish,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.secondaryAmber,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   padding: const EdgeInsets.symmetric(vertical: 16),
+                                  elevation: 2,
                                 ),
-                                icon: const Icon(Icons.person_add),
+                                icon: _isLoading
+                                    ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.check_circle),
                                 label: const Text(
-                                  'I-SALI SA CIRCLE',
+                                  'I-TAPOS ANG SETUP',
                                   style: TextStyle(
                                     fontFamily: 'Nunito Sans',
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // List Zone
-                    const Text(
-                      'Mga Kasapi sa Circle',
-                      style: TextStyle(
-                        fontFamily: 'Nunito Sans',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: _textSecondaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _additionalMembers.length,
-                      itemBuilder: (context, index) {
-                        final member = _additionalMembers[index];
-                        final isFamily = member.role == 'family';
-                        final avatarBg = isFamily ? _secondaryFixedColor : _primaryFixedColor;
-                        final avatarFg = isFamily ? _onSecondaryFixedColor : _onPrimaryFixedColor;
-
-                        return Card(
-                          elevation: 0,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey.shade200),
-                          ),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 24,
-                                  backgroundColor: avatarBg,
-                                  child: Icon(
-                                    isFamily ? Icons.family_restroom : Icons.volunteer_activism,
-                                    color: avatarFg,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        member.name,
-                                        style: const TextStyle(
-                                          fontFamily: 'Nunito Sans',
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${member.relationship} • ${member.phoneNumber}',
-                                        style: const TextStyle(
-                                          fontFamily: 'Nunito Sans',
-                                          fontSize: 14,
-                                          color: _textSecondaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: _errorColor),
-                                  onPressed: () => _removeMember(index),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Final Setup Button
-                    SizedBox(
-                      height: 64,
-                      child: ElevatedButton.icon(
-                        onPressed: _isLoading ? null : _saveAndFinish,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.secondaryAmber,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                        icon: _isLoading
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                              )
-                            : const Icon(Icons.check_circle),
-                        label: const Text(
-                          'I-TAPOS ANG SETUP',
-                          style: TextStyle(
-                            fontFamily: 'Nunito Sans',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
