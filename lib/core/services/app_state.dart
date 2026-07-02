@@ -134,6 +134,8 @@ class AppState extends ChangeNotifier {
     await databaseService.createSeniorProfile(profile);
     // Add creator as primary Trusted Circle Member
     await databaseService.addTrustedCircleMember(mainMember);
+    // Synchronously populate monitored seniors to trigger correct route instantly in MyApp
+    _monitoredSeniors = [profile];
     // Set as the active profile automatically
     setActiveSenior(profile);
   }
