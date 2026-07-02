@@ -24,14 +24,18 @@ export default function DownloadPage() {
                 Companionship, Scam Protection, AI Summaries, and Trusted Circle. Keep your elderly loved ones safe and connected.
               </p>
               
-              <button className="inline-flex items-center gap-4 bg-gradient-to-r from-primary to-primary-light text-white py-4.5 px-10 rounded-full font-extrabold text-[1.3rem] cursor-pointer hover:translate-y-[-4px] hover:scale-105 hover:shadow-[0_12px_35px_rgba(15,118,110,0.4)] shadow-[0_8px_25px_rgba(15,118,110,0.3)] transition-all duration-350 uppercase tracking-widest w-fit">
+              <a 
+                href="/app-release.apk"
+                download="app-release.apk"
+                className="inline-flex items-center gap-4 bg-gradient-to-r from-primary to-primary-light text-white py-4.5 px-10 rounded-full font-extrabold text-[1.3rem] cursor-pointer hover:translate-y-[-4px] hover:scale-105 hover:shadow-[0_12px_35px_rgba(15,118,110,0.4)] shadow-[0_8px_25px_rgba(15,118,110,0.3)] transition-all duration-350 uppercase tracking-widest w-fit"
+              >
                 Download Now
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="7 10 12 15 17 10"/>
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-              </button>
+              </a>
             </div>
 
             {/* Right Side: Media Frame */}

@@ -15,6 +15,11 @@ export const metadata = {
     "AI scam detection",
   ],
   authors: [{ name: "Team Gabay Sr." }],
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
   openGraph: {
     title: "Gabay Sr. — Companionship & Scam Protection for Filipino Seniors",
     description:
