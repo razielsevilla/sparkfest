@@ -49,7 +49,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       createdAt: DateTime.now(),
     );
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddCircleScreen(

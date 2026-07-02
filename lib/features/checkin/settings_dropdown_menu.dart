@@ -3,7 +3,6 @@ import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/features/onboarding/senior_profile_screen.dart';
 import 'package:gabaysr/features/onboarding/faq_screen.dart';
 import 'package:gabaysr/features/onboarding/help_walkthrough_screen.dart';
-import 'package:gabaysr/features/onboarding/login_screen.dart';
 
 class SettingsDropdownMenu extends StatelessWidget {
   final AppState appState;
@@ -57,13 +56,7 @@ class SettingsDropdownMenu extends StatelessWidget {
                 Navigator.pop(dialogContext); // Close dialog
                 await appState.logOut();
                 if (context.mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(appState: appState),
-                    ),
-                    (route) => false,
-                  );
+                  Navigator.popUntil(context, (route) => route.isFirst);
                 }
               },
               style: ElevatedButton.styleFrom(
