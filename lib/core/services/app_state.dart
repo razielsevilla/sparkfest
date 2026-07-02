@@ -6,6 +6,7 @@ import 'package:gabaysr/models/senior_profile.dart';
 import 'package:gabaysr/models/trusted_circle_member.dart';
 import 'package:gabaysr/models/alert.dart';
 import 'package:gabaysr/core/services/gemini_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppMode { senior, family }
 
@@ -29,16 +30,42 @@ class AppState extends ChangeNotifier {
   StreamSubscription? _summarySubscription;
 
   AppState({required this.authService, required this.databaseService}) {
+    loadPersistedSession();
     // Listen for auth state changes
-    _authSubscription = authService.onAuthStateChanged.listen((userPhone) {
-      _currentUserPhone = userPhone;
+    _authSubscription = authService.onAuthStateChanged.listen((userPhone) async {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSavedPhone = prefs.containsKey('saved_user_phone');
+
       if (userPhone != null) {
+        _currentUserPhone = userPhone;
+        await _savePersistedSession(userPhone);
         _subscribeToSeniors(userPhone);
-      } else {
+        notifyListeners();
+      } else if (!hasSavedPhone) {
         _clearUserSession();
+        notifyListeners();
       }
-      notifyListeners();
     });
+  }
+
+  Future<void> loadPersistedSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPhone = prefs.getString('saved_user_phone');
+    if (savedPhone != null) {
+      _currentUserPhone = savedPhone;
+      _subscribeToSeniors(savedPhone);
+      notifyListeners();
+    }
+  }
+
+  Future<void> _savePersistedSession(String phone) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_user_phone', phone);
+  }
+
+  Future<void> _clearPersistedSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saved_user_phone');
   }
 
   // Getters
@@ -84,14 +111,18 @@ class AppState extends ChangeNotifier {
     await authService.verifyOtp(verificationId, smsCode);
   }
 
-  void mockSignIn(String phone) {
+  void mockSignIn(String phone) async {
     _currentUserPhone = phone;
+    await _savePersistedSession(phone);
     _subscribeToSeniors(phone);
     notifyListeners();
   }
 
   Future<void> logOut() async {
+    await _clearPersistedSession();
+    _clearUserSession();
     await authService.signOut();
+    notifyListeners();
   }
 
   // ==========================================

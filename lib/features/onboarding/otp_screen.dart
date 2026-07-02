@@ -51,8 +51,9 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     widget.appState.mockSignIn(widget.phoneNumber);
+    await Future.microtask(() {});
     if (mounted) {
-      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pop(context);
     }
   }
 
