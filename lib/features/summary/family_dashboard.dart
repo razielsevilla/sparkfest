@@ -3,6 +3,7 @@ import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/checkin.dart';
 import 'package:gabaysr/models/scam_check.dart';
+import 'package:gabaysr/models/trusted_circle_member.dart';
 import 'package:intl/intl.dart';
 import 'package:gabaysr/features/checkin/gabay_home_header.dart';
 
@@ -448,47 +449,291 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
   // Tab 5: Trusted Circle Members List
   Widget _buildCircleTab() {
     final circle = widget.appState.trustedCircle;
+    final senior = widget.appState.activeSenior;
 
-    if (circle.isEmpty) {
-      return const Center(child: Text('Walang mga kasapi sa Circle.'));
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(24),
-      itemCount: circle.length,
-      itemBuilder: (context, index) {
-        final m = circle[index];
-        final isFamily = m.role == 'family';
-
-        return Card(
-          elevation: 0,
-          color: Colors.white,
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.shade200),
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: isFamily ? Colors.amber.shade100 : Colors.teal.shade100,
-              child: Icon(
-                isFamily ? Icons.family_restroom : Icons.volunteer_activism,
-                color: isFamily ? Colors.amber.shade900 : Colors.teal.shade900,
+    return Column(
+      children: [
+        if (senior != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: () => _showAddCircleMemberBottomSheet(context, senior.id),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.person_add_alt_1),
+                label: const Text(
+                  'MAGDAGDAG NG KASAPI SA CIRCLE',
+                  style: TextStyle(
+                    fontFamily: 'Nunito Sans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            title: Text(
-              m.name,
-              style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              'Relasyon: ${m.relationship} • Uri: ${m.role == "family" ? "Kapamilya" : "Volunteer"}',
-              style: const TextStyle(fontFamily: 'Nunito Sans'),
-            ),
-            trailing: Text(
-              m.phoneNumber,
-              style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
-            ),
           ),
+        Expanded(
+          child: circle.isEmpty
+              ? const Center(child: Text('Walang mga kasapi sa Circle.'))
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  itemCount: circle.length,
+                  itemBuilder: (context, index) {
+                    final m = circle[index];
+                    final isFamily = m.role == 'family';
+
+                    return Card(
+                      elevation: 0,
+                      color: Colors.white,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: isFamily ? Colors.amber.shade100 : Colors.teal.shade100,
+                          child: Icon(
+                            isFamily ? Icons.family_restroom : Icons.volunteer_activism,
+                            color: isFamily ? Colors.amber.shade900 : Colors.teal.shade900,
+                          ),
+                        ),
+                        title: Text(
+                          m.name,
+                          style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          'Relasyon: ${m.relationship} • Uri: ${m.role == "family" ? "Kapamilya" : "Volunteer"}',
+                          style: const TextStyle(fontFamily: 'Nunito Sans'),
+                        ),
+                        trailing: Text(
+                          m.phoneNumber,
+                          style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  void _showAddCircleMemberBottomSheet(BuildContext context, String seniorId) {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    String relationship = 'Anak';
+    String role = 'family';
+    final formKey = GlobalKey<FormState>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Magdagdag ng Kasapi sa Circle',
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Pangalan Input
+                    const Text(
+                      'Pangalan',
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _textSecondaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: nameCtrl,
+                      style: const TextStyle(fontFamily: 'Nunito Sans'),
+                      decoration: InputDecoration(
+                        hintText: 'Halimbawa: Maria Santos',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      validator: (val) => val == null || val.trim().isEmpty ? 'Ilagay ang pangalan' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Numero ng Telepono Input
+                    const Text(
+                      'Numero ng Telepono',
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _textSecondaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: phoneCtrl,
+                      keyboardType: TextInputType.phone,
+                      style: const TextStyle(fontFamily: 'Nunito Sans'),
+                      decoration: InputDecoration(
+                        hintText: 'Halimbawa: 0917XXXXXXX',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      validator: (val) => val == null || val.trim().isEmpty ? 'Ilagay ang numero' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Relasyon Dropdown
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Relasyon',
+                                style: TextStyle(
+                                  fontFamily: 'Nunito Sans',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _textSecondaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              DropdownButtonFormField<String>(
+                                initialValue: relationship,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'Anak', child: Text('Anak')),
+                                  DropdownMenuItem(value: 'Asawa', child: Text('Asawa')),
+                                  DropdownMenuItem(value: 'Apo', child: Text('Apo')),
+                                  DropdownMenuItem(value: 'Kaibigan', child: Text('Kaibigan')),
+                                  DropdownMenuItem(value: 'Volunteer', child: Text('Volunteer')),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    setModalState(() => relationship = val);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Uri',
+                                style: TextStyle(
+                                  fontFamily: 'Nunito Sans',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _textSecondaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              DropdownButtonFormField<String>(
+                                initialValue: role,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'family', child: Text('Kapamilya')),
+                                  DropdownMenuItem(value: 'volunteer', child: Text('Volunteer')),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    setModalState(() => role = val);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Add Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+                          final newMember = TrustedCircleMember(
+                            id: 'member_${DateTime.now().millisecondsSinceEpoch}',
+                            seniorProfileId: seniorId,
+                            name: nameCtrl.text.trim(),
+                            relationship: relationship,
+                            phoneNumber: phoneCtrl.text.trim(),
+                            role: role,
+                          );
+                          await widget.appState.inviteCircleMember(newMember);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Matagumpay na naidagdag ang bagong kasapi!'),
+                                backgroundColor: _primaryColor,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primaryColor,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text(
+                          'I-SAVE SA CIRCLE',
+                          style: TextStyle(
+                            fontFamily: 'Nunito Sans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

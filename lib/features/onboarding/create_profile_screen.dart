@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/senior_profile.dart';
-import 'package:gabaysr/models/trusted_circle_member.dart';
+import 'package:gabaysr/features/onboarding/add_circle_screen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   final AppState appState;
@@ -36,7 +36,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     _barangayController.text = "";
   }
 
-  void _next() async {
+  void _next() {
     if (!_formKey.currentState!.validate()) return;
 
     final seniorId = 'senior_${DateTime.now().millisecondsSinceEpoch}';
@@ -49,32 +49,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       createdAt: DateTime.now(),
     );
 
-    // Create primary member (the currently logged in user)
-    final primaryMemberId = 'member_primary_${DateTime.now().millisecondsSinceEpoch}';
-    final primaryMember = TrustedCircleMember(
-      id: primaryMemberId,
-      seniorProfileId: seniorId,
-      name: 'Primary Monitor',
-      relationship: 'Pamilya',
-      phoneNumber: widget.appState.currentUserPhone ?? '+63 917 123 4567',
-      role: 'family',
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddCircleScreen(
+          appState: widget.appState,
+          seniorProfile: newProfile,
+        ),
+      ),
     );
-
-    try {
-      await widget.appState.registerSenior(newProfile, primaryMember);
-      if (mounted) {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('May error sa pag-save: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
   }
 
   @override
