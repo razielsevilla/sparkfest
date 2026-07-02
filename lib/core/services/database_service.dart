@@ -9,6 +9,7 @@ abstract class DatabaseService {
   Future<void> createSeniorProfile(SeniorProfile profile);
   Future<SeniorProfile?> getSeniorProfile(String profileId);
   Stream<List<SeniorProfile>> streamSeniorsForMember(String memberPhone);
+  Future<List<SeniorProfile>> getSeniorsForMember(String memberPhone);
   Future<void> updateLastCheckIn(String profileId, DateTime checkInDate);
 
   // Trusted Circle Operations

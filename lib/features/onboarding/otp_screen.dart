@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
+import 'package:gabaysr/features/onboarding/create_profile_screen.dart';
+import 'package:gabaysr/features/summary/family_dashboard.dart';
 
 class OtpScreen extends StatefulWidget {
   final AppState appState;
@@ -50,10 +52,41 @@ class _OtpScreenState extends State<OtpScreen> {
       _errorMessage = null;
     });
 
-    widget.appState.mockSignIn(widget.phoneNumber);
-    await Future.microtask(() {});
-    if (mounted) {
-      Navigator.pop(context);
+    try {
+      // 1. Fetch from Firestore first to see if a circle/senior profile exists
+      final seniors = await widget.appState.databaseService.getSeniorsForMember(widget.phoneNumber);
+
+      // 2. Perform the mock sign in state registration
+      widget.appState.mockSignIn(widget.phoneNumber);
+
+      if (mounted) {
+        if (seniors.isNotEmpty) {
+          // Already registered -> Go directly to Family Dashboard, clearing stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FamilyDashboard(appState: widget.appState),
+            ),
+            (route) => false,
+          );
+        } else {
+          // New user -> Go to Create Profile Screen, clearing stack so it is the new root
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateProfileScreen(appState: widget.appState),
+            ),
+            (route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'May error sa pag-verify: $e';
+        });
+      }
     }
   }
 

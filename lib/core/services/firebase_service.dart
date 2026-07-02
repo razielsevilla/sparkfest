@@ -132,6 +132,34 @@ class FirebaseService implements AuthService, DatabaseService {
   }
 
   @override
+  Future<List<SeniorProfile>> getSeniorsForMember(String memberPhone) async {
+    final memberSnap = await _firestore
+        .collection('trustedCircleMembers')
+        .where('phoneNumber', isEqualTo: memberPhone)
+        .get();
+
+    List<String> seniorIds = memberSnap.docs
+        .map((d) => d.data()['seniorProfileId'] as String)
+        .toList();
+
+    if (seniorIds.isEmpty) return [];
+
+    List<SeniorProfile> profiles = [];
+    for (var i = 0; i < seniorIds.length; i += 10) {
+      var end = (i + 10 < seniorIds.length) ? i + 10 : seniorIds.length;
+      var subList = seniorIds.sublist(i, end);
+      var profileSnap = await _firestore
+          .collection('seniorProfiles')
+          .where('id', whereIn: subList)
+          .get();
+      profiles.addAll(
+        profileSnap.docs.map((d) => SeniorProfile.fromMap(d.data())).toList(),
+      );
+    }
+    return profiles;
+  }
+
+  @override
   Future<void> updateLastCheckIn(String profileId, DateTime checkInDate) async {
     await _firestore.collection('seniorProfiles').doc(profileId).update({
       'lastCheckInDate': checkInDate.toIso8601String(),
