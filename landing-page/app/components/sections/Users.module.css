@@ -1,0 +1,184 @@
+.section {
+  padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 5vw, 4rem);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4.5rem;
+}
+
+/* ── Grid — standalone cards, NOT the bordered-container pattern ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+/* ── Card ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  transition:
+    transform 400ms cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 400ms ease,
+    border-color 400ms ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(15, 118, 110, 0.08);
+  border-color: rgba(15, 118, 110, 0.18);
+}
+
+/* ── Colored Banner Top ── */
+.banner {
+  position: relative;
+  height: 80px;
+  background: var(--banner-gradient);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.emojiCircle {
+  position: absolute;
+  bottom: -28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--accent-color, var(--primary, #0f766e));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 400ms cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 2;
+}
+
+.card:hover .emojiCircle {
+  transform: scale(1.08);
+}
+
+.emoji {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+/* ── Body ── */
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 1.2rem;
+  font-weight: 650;
+  color: var(--text-primary, #1F2937);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.role {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-color, var(--primary, #0f766e));
+  margin-bottom: 1.5rem;
+}
+
+/* ── Quote ── */
+.quote {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-secondary, #6B7280);
+  line-height: 1.7;
+  padding: 1rem 1.25rem;
+  background: var(--quote-bg, rgba(15, 118, 110, 0.025));
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  text-align: left;
+}
+
+/* Decorative quote mark */
+.quote::before {
+  content: '"';
+  position: absolute;
+  top: -0.15rem;
+  left: 0.65rem;
+  font-family: Georgia, serif;
+  font-size: 2.5rem;
+  font-style: normal;
+  color: var(--accent-color, var(--primary, #0f766e));
+  opacity: 0.15;
+  line-height: 1;
+}
+
+/* ── Bullet list ── */
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(15, 118, 110, 0.06);
+  text-align: left;
+}
+
+.bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary, #1F2937);
+  line-height: 1.45;
+}
+
+.check {
+  color: var(--accent-color, var(--primary, #0f766e));
+  font-weight: 800;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.18em;
+}
+
+/* ── Accent Themes ── */
+.teal {
+  --accent-color: #0d9488;
+  --banner-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 60%, #5eead4 100%);
+  --quote-bg: rgba(13, 148, 136, 0.035);
+}
+
+.amber {
+  --accent-color: #d97706;
+  --banner-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 60%, #fbbf24 100%);
+  --quote-bg: rgba(245, 158, 11, 0.035);
+}
+
+.primary {
+  --accent-color: #0f766e;
+  --banner-gradient: linear-gradient(135deg, #0f766e 0%, #14b8a6 60%, #99f6e4 100%);
+  --quote-bg: rgba(15, 118, 110, 0.035);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}

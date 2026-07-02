@@ -1,0 +1,140 @@
+.section {
+  padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 5vw, 4rem);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4.5rem;
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.08);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ── Card ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 3rem 2.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 300ms ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Accent bar – left edge */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  left: 0;
+  width: 3px;
+  height: 2rem;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent-color, var(--primary, #0f766e));
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Watermark number – big background index */
+.card::after {
+  content: attr(data-index);
+  position: absolute;
+  bottom: -0.15em;
+  right: 0.1em;
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 10rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(15, 118, 110, 0.04);
+  pointer-events: none;
+  user-select: none;
+  transition: color 300ms ease;
+}
+
+.card:hover::after {
+  color: rgba(15, 118, 110, 0.07);
+}
+
+/* ── Icon ── */
+.iconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  transition: transform 300ms ease;
+  position: relative;
+  z-index: 1;
+}
+
+.card:hover .iconWrap {
+  transform: translateY(-2px);
+}
+
+.iconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Typography ── */
+.card h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary, #1F2937);
+  letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+.card p {
+  font-size: 1rem;
+  color: var(--text-secondary, #6B7280);
+  line-height: 1.8;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Accent Colors ── */
+.teal::before  { background: #14b8a6; }
+.amber::before { background: #f59e0b; }
+.red::before   { background: #ef4444; }
+.primary::before { background: var(--primary, #0f766e); }
+
+.teal h3    { color: #0d9488; }
+.amber h3   { color: #b45309; }
+.red h3     { color: #dc2626; }
+.primary h3 { color: var(--primary, #0f766e); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 2.5rem 2rem;
+  }
+
+  .card::after {
+    font-size: 7rem;
+  }
+}

@@ -1,0 +1,140 @@
+.section {
+  padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 5vw, 4rem);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 6rem; /* Extra space for the top floating icons */
+}
+
+/* ── Staggered Grid Layout ── */
+.staggeredGrid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding-bottom: 4rem; /* Accounts for the bottom offset of the last card */
+}
+
+/* ── Card ── */
+.card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  border-radius: 20px;
+  padding: 3rem 2rem 2rem;
+  position: relative;
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Create the diagonal staircase effect */
+.card:nth-child(2) {
+  margin-top: 2.5rem;
+}
+
+.card:nth-child(3) {
+  margin-top: 5rem;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 48px var(--shadow-tint, rgba(15, 118, 110, 0.12));
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Floating Emoji Icon ── */
+.floatingEmoji {
+  position: absolute;
+  top: -28px;
+  left: 2rem;
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  border: 2px solid var(--accent-color);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 400ms ease;
+  z-index: 2;
+}
+
+.card:hover .floatingEmoji {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 12px 32px var(--shadow-tint);
+}
+
+/* ── Typography & Content ── */
+.tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-color);
+  background: var(--tag-bg);
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.card h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #6B7280);
+  line-height: 1.75;
+}
+
+/* ── Accent Themes ── */
+.blue {
+  --accent-color: #3b82f6;
+  --shadow-tint: rgba(59, 130, 246, 0.15);
+  --tag-bg: rgba(59, 130, 246, 0.1);
+}
+
+.amber {
+  --accent-color: #d97706;
+  --shadow-tint: rgba(245, 158, 11, 0.15);
+  --tag-bg: rgba(245, 158, 11, 0.1);
+}
+
+.purple {
+  --accent-color: #7c3aed;
+  --shadow-tint: rgba(139, 92, 246, 0.15);
+  --tag-bg: rgba(139, 92, 246, 0.1);
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .staggeredGrid {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0;
+  }
+  
+  .card,
+  .card:nth-child(2),
+  .card:nth-child(3) {
+    width: 100%;
+    max-width: 450px;
+    margin-top: 3.5rem; /* Overrides the staggered effect for mobile, keeping space for floating icons */
+  }
+  
+  .card:first-child {
+    margin-top: 1rem;
+  }
+}
