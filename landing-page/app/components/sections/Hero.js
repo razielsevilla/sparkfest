@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { Signal, BatteryFull, Smile, Meh, Frown, CheckCircle2, Settings, User, Shield, Search, Lightbulb, ArrowLeft } from "lucide-react";
 import styles from "./Hero.module.css";
 
 export default function Hero() {
   // Interactive Demo State
-  const [demoMode, setDemoMode] = useState("checkin"); // "checkin" | "scam"
+  const [demoMode, setDemoMode] = useState("home"); // "home" | "checkin" | "scam"
 
   // Checkin Flow State
-  const [checkinStep, setCheckinStep] = useState("home"); // "home" | "mood" | "success"
+  const [checkinStep, setCheckinStep] = useState("mood"); // "mood" | "success"
   const [selectedMood, setSelectedMood] = useState("");
 
   // Scam Checker State
@@ -18,13 +19,15 @@ export default function Hero() {
 
   const startCheckin = () => {
     setCheckinStep("mood");
+    setDemoMode("checkin");
   };
 
   const selectMood = (mood) => {
     setSelectedMood(mood);
     setCheckinStep("success");
     setTimeout(() => {
-      setCheckinStep("home");
+      setDemoMode("home");
+      setCheckinStep("mood");
       setSelectedMood("");
     }, 3000);
   };
@@ -113,58 +116,78 @@ export default function Hero() {
                 <div className={styles.phoneInfo}>
                   <span>09:41</span>
                   <div className={styles.phoneStatusIcons}>
-                    📶 🔋
+                    <Signal size={14} /> <BatteryFull size={14} />
                   </div>
-                </div>
-
-                {/* Internal Simulator Navigation */}
-                <div className={styles.simulatorTabs}>
-                  <button
-                    className={`${styles.simTab} ${demoMode === "checkin" ? styles.simTabActive : ""}`}
-                    onClick={() => setDemoMode("checkin")}
-                  >
-                    👵 Senior Check-In
-                  </button>
-                  <button
-                    className={`${styles.simTab} ${demoMode === "scam" ? styles.simTabActive : ""}`}
-                    onClick={() => setDemoMode("scam")}
-                  >
-                    🔍 Scam Checker
-                  </button>
                 </div>
               </div>
 
               <div className={styles.phoneScreen}>
 
-                {/* MODE 1: DAILY CHECK-IN FLOW */}
+                {/* MODE 1: HOME SCREEN */}
+                {demoMode === "home" && (
+                  <div className={styles.appHome}>
+                    <div className={styles.appHeader}>
+                      <div className={styles.appHeaderLeft}>
+                        <User size={20} strokeWidth={2.5} />
+                        <span>Magandang araw!</span>
+                      </div>
+                      <button className={styles.iconBtn}><Settings size={20} /></button>
+                    </div>
+
+                    <div className={styles.appHomeProfile}>
+                      <div className={styles.appAvatar}>
+                        <User size={36} />
+                      </div>
+                      <div className={styles.appGreeting}>
+                        Kumusta, Lola Luz!
+                      </div>
+                    </div>
+
+                    <div className={styles.appBanner}>
+                      <CheckCircle2 size={16} />
+                      Protektado ang iyong account ng Trusted Circle.
+                    </div>
+
+                    <div className={styles.appBtnBlock}>
+                      <button onClick={startCheckin} className={styles.appBtnPrimary}>
+                        <CheckCircle2 size={24} />
+                        I-CHECK IN NGAYON
+                      </button>
+                      <button onClick={() => setDemoMode("scam")} className={styles.appBtnSecondary}>
+                        <Shield size={24} />
+                        I-CHECK KUNG SCAM
+                      </button>
+                    </div>
+
+                    <div className={styles.appTipCard}>
+                      <div className={styles.appTipHeader}>
+                        <span>Araw-araw na Gabay</span>
+                        <Lightbulb size={18} color="#0f766e" />
+                      </div>
+                      <div className={styles.appTipBody}>
+                        Siguraduhin na uminom ng sapat na tubig ngayong mainit ang panahon.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODE 2: DAILY CHECK-IN FLOW */}
                 {demoMode === "checkin" && (
                   <div className={styles.screenInnerCheckin}>
-                    {checkinStep === "home" && (
-                      <div className={styles.checkinHome}>
-                        <div className={styles.avatar}>👵</div>
-                        <h2>Kumusta, Lola Luz?</h2>
-                        <p>Gusto mo bang mag check-in sa pamilya mo ngayon?</p>
-                        <button onClick={startCheckin} className={styles.checkinBigBtn}>
-                          I-CHECK IN NGAYON
-                          <span className={styles.ripple} />
-                        </button>
-                      </div>
-                    )}
-
                     {checkinStep === "mood" && (
                       <div className={styles.checkinMood}>
                         <h2>Ano ang nararamdaman mo ngayon?</h2>
                         <div className={styles.moodGrid}>
-                          <button onClick={() => selectMood("Masaya 😊")} className={`${styles.moodCard} ${styles.moodHappy}`}>
-                            <span className={styles.moodEmoji}>😊</span>
+                          <button onClick={() => selectMood("Masaya")} className={`${styles.moodCard} ${styles.moodHappy}`}>
+                            <Smile size={40} strokeWidth={1.5} className={styles.moodEmoji} />
                             <span>Masaya</span>
                           </button>
-                          <button onClick={() => selectMood("Okay lang 😐")} className={`${styles.moodCard} ${styles.moodOk}`}>
-                            <span className={styles.moodEmoji}>😐</span>
+                          <button onClick={() => selectMood("Okay lang")} className={`${styles.moodCard} ${styles.moodOk}`}>
+                            <Meh size={40} strokeWidth={1.5} className={styles.moodEmoji} />
                             <span>Okay lang</span>
                           </button>
-                          <button onClick={() => selectMood("Malungkot 😢")} className={`${styles.moodCard} ${styles.moodSad}`}>
-                            <span className={styles.moodEmoji}>😢</span>
+                          <button onClick={() => selectMood("Malungkot")} className={`${styles.moodCard} ${styles.moodSad}`}>
+                            <Frown size={40} strokeWidth={1.5} className={styles.moodEmoji} />
                             <span>Malungkot</span>
                           </button>
                         </div>
@@ -173,65 +196,78 @@ export default function Hero() {
 
                     {checkinStep === "success" && (
                       <div className={styles.checkinSuccess}>
-                        <div className={styles.successIcon}>✓</div>
+                        <div className={styles.successIcon}>
+                          <CheckCircle2 size={48} />
+                        </div>
                         <h2>Salamat, Lola Luz!</h2>
                         <p className={styles.successToast}>
                           Naipadala na namin ang iyong check-in mood <strong>({selectedMood})</strong> sa iyong Trusted Circle.
                         </p>
                         <div className={styles.successBanner}>
-                          👨‍👩‍👧 Naabisuhan na sila
+                          Naabisuhan na sila
                         </div>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* MODE 2: SCAM CHECKER FLOW */}
+                {/* MODE 3: SCAM CHECKER FLOW */}
                 {demoMode === "scam" && (
-                  <div className={styles.screenInnerScam}>
-                    <h3>Suriin ang Mensahe</h3>
-                    <p className={styles.scamHelp}>Mag-paste ng mensahe o pumili ng halimbawa sa ibaba:</p>
-
-                    <div className={styles.templateGrid}>
-                      <button
-                        onClick={() => setScamTemplate("CONGRATS! You won Php 500,000 from OSCA Charity. Claim now at http://scam-link.ru/osca")}
-                        className={styles.templateBtn}
-                      >
-                        🎁 OSCA Win
-                      </button>
-                      <button
-                        onClick={() => setScamTemplate("GCASH Alert: Your account is suspended. Please update information at https://gcash-security-update.net/login")}
-                        className={styles.templateBtn}
-                      >
-                        💳 GCash Lock
-                      </button>
-                      <button
-                        onClick={() => setScamTemplate("Hi Ma, kumusta ka na? Text ka naman sa bagong number ko na ito.")}
-                        className={styles.templateBtn}
-                      >
-                        💬 Kamag-anak
-                      </button>
+                  <div className={styles.appScam}>
+                    <div className={styles.appHeader}>
+                      <div className={styles.appHeaderLeft}>
+                        <button onClick={() => { setDemoMode("home"); setScamStatus("idle"); setScamInput(""); }} className={styles.iconBtn}>
+                          <ArrowLeft size={24} />
+                        </button>
+                        <span>Scam Checker</span>
+                      </div>
+                      <button className={styles.iconBtn}><Settings size={20} /></button>
                     </div>
 
-                    <div className={styles.scamInputWrap}>
-                      <textarea
-                        value={scamInput}
-                        onChange={(e) => setScamInput(e.target.value)}
-                        placeholder="I-type o i-paste ang mensahe dito..."
-                        className={styles.scamTextarea}
-                        rows={4}
-                      />
-                    </div>
+                    <div className={styles.appCard}>
+                      <div className={styles.appInputGroup}>
+                        <span className={styles.appLabel}>Nilalaman ng mensahe</span>
+                        <textarea
+                          value={scamInput}
+                          onChange={(e) => setScamInput(e.target.value)}
+                          placeholder="I-paste dito ang natanggap na text o mensahe..."
+                          className={styles.appTextarea}
+                        />
+                      </div>
+                      
+                      <div className={styles.appInputGroup}>
+                        <span className={styles.appLabel}>Numero ng nagpadala</span>
+                        <input
+                          type="text"
+                          placeholder="Halimbawa: 0917XXXXXXX"
+                          className={styles.appInput}
+                        />
+                      </div>
 
-                    <div className={styles.scamActions}>
                       <button
                         onClick={handleScamCheck}
-                        className={styles.scamCheckBtn}
+                        className={styles.appBtnPrimary}
+                        style={{ marginTop: '0.5rem', borderRadius: '12px', padding: '1rem' }}
                         disabled={scamStatus === "checking"}
                       >
-                        {scamStatus === "checking" ? "Sinusuri..." : "I-check kung Scam 🔍"}
+                        <Search size={18} />
+                        {scamStatus === "checking" ? "SINUSURI..." : "I-CHECK ANG MENSAHE"}
                       </button>
                     </div>
+
+                    {scamStatus === "idle" && (
+                      <div className={styles.appSecurityTips}>
+                        <div className={styles.appSecurityTitle}>Tips para sa Inyong Seguridad</div>
+                        <div className={styles.appSecurityItem}>
+                          <CheckCircle2 size={18} color="#0f766e" style={{flexShrink: 0}} />
+                          <span>Huwag mag-click ng mga link mula sa hindi kilalang numero.</span>
+                        </div>
+                        <div className={styles.appSecurityItem}>
+                          <CheckCircle2 size={18} color="#0f766e" style={{flexShrink: 0}} />
+                          <span>Ang mga bangko ay hindi kailanman hihingi ng iyong OTP sa pamamagitan ng tawag o text.</span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Checking State */}
                     {scamStatus === "checking" && (
@@ -245,7 +281,7 @@ export default function Hero() {
                     {scamStatus === "result" && scamResult && (
                       <div className={`${styles.scamVerdict} ${scamResult.color === "red" ? styles.verdictRed : styles.verdictGreen}`}>
                         <div className={styles.verdictHeader}>
-                          🛡️ Risk Verdict: <strong>{scamResult.level}</strong>
+                          Risk Verdict: <strong>{scamResult.level}</strong>
                         </div>
                         <div className={styles.verdictBody}>
                           <p><strong>Dahilan:</strong> {scamResult.reason}</p>
@@ -253,7 +289,7 @@ export default function Hero() {
                         </div>
                         {scamResult.color === "red" && (
                           <div className={styles.verdictBanner}>
-                            ⚠️ Push alert sent to your Trusted Circle!
+                            Push alert sent to your Trusted Circle!
                           </div>
                         )}
                       </div>

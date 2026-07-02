@@ -50,7 +50,7 @@ export default function Navbar() {
             </a>
           </li>
           <li>
-            <a href="/#cta" className={styles.cta} onClick={closeMenu}>
+            <a href="/download" className={styles.cta} onClick={closeMenu}>
               Download App
             </a>
           </li>

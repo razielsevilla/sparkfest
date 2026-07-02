@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Heart, Globe, Building } from "lucide-react";
 import styles from "./Users.module.css";
 
 const personas = [
   {
-    emoji: "👵",
+    id: "senior",
+    positionClass: "nodeTop",
+    emoji: <Heart size={44} strokeWidth={1.5} />,
     name: "Lola Luz & Lolo Pepe",
     role: "Senior Citizen",
     quote:
@@ -18,7 +21,9 @@ const personas = [
     accent: "teal",
   },
   {
-    emoji: "👨‍👩‍👧",
+    id: "ofw",
+    positionClass: "nodeBottomLeft",
+    emoji: <Globe size={44} strokeWidth={1.5} />,
     name: "OFW Relative & Family",
     role: "Trusted Circle Member",
     quote:
@@ -31,7 +36,9 @@ const personas = [
     accent: "amber",
   },
   {
-    emoji: "🏘️",
+    id: "local",
+    positionClass: "nodeBottomRight",
+    emoji: <Building size={44} strokeWidth={1.5} />,
     name: "Barangay & OSCA Staff",
     role: "Local Support Network",
     quote:
@@ -78,31 +85,29 @@ export default function Users() {
           <h2 className="section-title">Designed for Every Filipino Family</h2>
           <p className="section-subtitle">
             Whether you&apos;re a senior, an overseas worker, or a local
-            volunteer — Gabay Sr. has a role for you in keeping our elders safe.
+            volunteer — Gabay Sr. connects you all in one Trusted Circle.
           </p>
         </div>
 
-        <div className={styles.spotlightList}>
+        <div className={`${styles.networkContainer} reveal`}>
+          
+          {/* Network Nodes */}
           {personas.map((persona, i) => (
             <div
-              key={i}
-              className={`${styles.spotlightRow} ${styles[persona.accent]} ${
-                i % 2 !== 0 ? styles.reversed : ""
-              } reveal`}
-              style={{ transitionDelay: `${i * 0.12}s` }}
+              key={persona.id}
+              className={`${styles.nodeCard} ${styles[persona.positionClass]} ${styles[persona.accent]}`}
+              style={{ transitionDelay: `${i * 0.1}s` }}
             >
-              {/* Emoji orb side */}
-              <div className={styles.orbSide}>
-                <div className={styles.orbContainer}>
-                  <div className={styles.orbRing} />
-                  <div className={styles.orbRing2} />
-                  <div className={styles.orb}>
-                    <span className={styles.orbEmoji}>{persona.emoji}</span>
-                  </div>
+              {/* Glowing Orb */}
+              <div className={styles.orbContainer}>
+                <div className={styles.orbRing} />
+                <div className={styles.orbRing2} />
+                <div className={styles.orb}>
+                  {persona.emoji}
                 </div>
               </div>
 
-              {/* Content side */}
+              {/* Persona Content */}
               <div className={styles.contentSide}>
                 <div className={styles.roleTag}>{persona.role}</div>
                 <h3 className={styles.personaName}>{persona.name}</h3>
@@ -120,6 +125,7 @@ export default function Users() {
               </div>
             </div>
           ))}
+          
         </div>
       </div>
     </section>

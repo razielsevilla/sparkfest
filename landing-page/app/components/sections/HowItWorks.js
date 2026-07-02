@@ -1,33 +1,34 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Users, HeartHandshake, ShieldCheck, BellRing } from "lucide-react";
 import styles from "./HowItWorks.module.css";
 
 const steps = [
   {
     number: "1",
-    emoji: "👨‍👩‍👧",
+    emoji: <Users size={32} strokeWidth={1.5} />,
     title: "Create a Trusted Circle",
     description:
       "A family member signs up and adds Lola's profile, then invites relatives, OFWs, and barangay volunteers.",
   },
   {
     number: "2",
-    emoji: "📱",
+    emoji: <HeartHandshake size={32} strokeWidth={1.5} />,
     title: "Daily Check-In",
     description:
       'Lola taps one big button, picks her mood emoji, and optionally records a voice note — done in under 30 seconds.',
   },
   {
     number: "3",
-    emoji: "🤖",
+    emoji: <ShieldCheck size={32} strokeWidth={1.5} />,
     title: "AI Watches Over",
     description:
       "Gemini AI scans suspicious messages for scam patterns and generates warm weekly companionship summaries.",
   },
   {
     number: "4",
-    emoji: "🔔",
+    emoji: <BellRing size={32} strokeWidth={1.5} />,
     title: "Circle Gets Notified",
     description:
       "Instant push alerts for scam threats or missed check-ins, plus weekly summaries so family always stays connected.",

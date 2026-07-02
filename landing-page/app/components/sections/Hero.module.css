@@ -333,36 +333,6 @@
   gap: 0.4rem;
 }
 
-/* Simulator mode switch tabs */
-.simulatorTabs {
-  display: flex;
-  margin-top: 1rem;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.2rem;
-  border-radius: 12px;
-  gap: 0.2rem;
-}
-
-.simTab {
-  flex: 1;
-  background: none;
-  border: none;
-  font-family: var(--font-primary);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
-  padding: 0.5rem 0.2rem;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-smooth);
-  text-align: center;
-}
-
-.simTabActive {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 2px 10px rgba(20, 184, 166, 0.3);
-}
 
 .phoneScreen {
   flex: 1;
@@ -395,59 +365,203 @@
   text-align: center;
 }
 
-.checkinHome {
+/* App Common Header */
+.appHeader {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  animation: fadeIn 0.4s var(--ease-smooth);
+  color: #0f766e;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
 }
-
-.avatar {
-  font-size: 4rem;
-  background: white;
-  width: 100px;
-  height: 100px;
+.appHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.iconBtn {
+  background: none;
+  border: none;
+  color: #1e293b;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* App Home Screen */
+.appHome {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s var(--ease-smooth);
+}
+.appHomeProfile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.appAvatar {
+  width: 65px;
+  height: 65px;
+  background: #e2e8f0;
   border-radius: 50%;
-  box-shadow: var(--shadow-md);
-  border: 3px solid var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f766e;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
-
-.checkinHome h2 {
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: var(--primary-dark);
+.appGreeting {
+  font-size: 1.3rem;
+  font-weight: 850;
+  color: #1e293b;
+  line-height: 1.2;
 }
-
-.checkinHome p {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+.appBanner {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.8rem 1rem;
+  border-radius: 24px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
-
-.checkinBigBtn {
-  background: linear-gradient(135deg, var(--secondary), #d97706);
-  border: none;
+.appBtnBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.appBtnPrimary {
+  background: #0f766e;
   color: white;
-  font-family: var(--font-primary);
-  font-size: 1.15rem;
+  border: none;
+  border-radius: 16px;
+  padding: 1.1rem;
   font-weight: 800;
-  padding: 1.2rem 2.2rem;
-  border-radius: var(--radius-md);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(15, 118, 110, 0.2);
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-  transition: all var(--duration-fast) var(--ease-spring);
-  position: relative;
-  overflow: hidden;
-  margin-top: 1rem;
-  width: 100%;
+  transition: transform 0.2s;
+}
+.appBtnPrimary:hover { transform: scale(1.02); }
+.appBtnSecondary {
+  background: #f59e0b;
+  color: #1e293b;
+  border: none;
+  border-radius: 16px;
+  padding: 1.1rem;
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.appBtnSecondary:hover { transform: scale(1.02); }
+.appTipCard {
+  background: white;
+  border-radius: 20px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.appTipHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  color: #1e293b;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.appTipBody {
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.5;
 }
 
-.checkinBigBtn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
+/* App Scam Checker Screen */
+.appScam {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s var(--ease-smooth);
+}
+.appCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.appInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.appLabel {
+  font-weight: 700;
+  color: #334155;
+  font-size: 0.85rem;
+}
+.appTextarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  resize: none;
+  font-family: inherit;
+  color: #1e293b;
+  height: 90px;
+}
+.appTextarea:focus, .appInput:focus {
+  outline: none;
+  border-color: #0f766e;
+}
+.appInput {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #1e293b;
+}
+.appSecurityTips {
+  background: #e2e8f0;
+  border-radius: 16px;
+  padding: 1.2rem;
+  margin-top: auto;
+}
+.appSecurityTitle {
+  color: #0f766e;
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+}
+.appSecurityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: #1e293b;
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
 }
 
 /* Mood Step */

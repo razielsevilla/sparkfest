@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Lock, Cpu, Database } from "lucide-react";
 import styles from "./Security.module.css";
 
 const securityFeatures = [
   {
-    icon: "🔒",
+    icon: <Lock size={32} strokeWidth={1.5} />,
     title: "Closed Network",
     description:
       "Gabay Sr. operates on a strict invite-only basis. No strangers can ever message or access your loved one's profile.",
     glow: "teal",
   },
   {
-    icon: "🛡️",
+    icon: <Cpu size={32} strokeWidth={1.5} />,
     title: "Real-Time AI Shield",
     description:
       "Suspicious messages are scanned instantly by Gemini AI, flagging phishing attempts before any dangerous links are tapped.",
     glow: "amber",
   },
   {
-    icon: "☁️",
+    icon: <Database size={32} strokeWidth={1.5} />,
     title: "Secure Infrastructure",
     description:
       "Powered by Google Firebase with strict security rules, ensuring check-in logs and personal data are encrypted and safe.",

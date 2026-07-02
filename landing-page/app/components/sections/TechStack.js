@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Smartphone, Flame, Sparkles, CloudCog, Palette } from "lucide-react";
 import styles from "./TechStack.module.css";
 
 const technologies = [
   {
-    logo: "💙",
+    logo: <Smartphone size={32} strokeWidth={1.5} />,
     name: "Flutter",
     tag: "Frontend Framework",
     description:
@@ -13,7 +14,7 @@ const technologies = [
     accent: "blue",
   },
   {
-    logo: "🔥",
+    logo: <Flame size={32} strokeWidth={1.5} />,
     name: "Firebase",
     tag: "Backend & Notifications",
     description:
@@ -21,7 +22,7 @@ const technologies = [
     accent: "amber",
   },
   {
-    logo: "✨",
+    logo: <Sparkles size={32} strokeWidth={1.5} />,
     name: "Gemini API",
     tag: "AI & Safety Engine",
     description:
@@ -29,7 +30,7 @@ const technologies = [
     accent: "purple",
   },
   {
-    logo: "⚡",
+    logo: <CloudCog size={32} strokeWidth={1.5} />,
     name: "Cloud Functions",
     tag: "Serverless Compute",
     description:
@@ -37,7 +38,7 @@ const technologies = [
     accent: "amber",
   },
   {
-    logo: "📱",
+    logo: <Palette size={32} strokeWidth={1.5} />,
     name: "Material Design",
     tag: "Accessible UI",
     description:
