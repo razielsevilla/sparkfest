@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Heart, Shield, Star } from "lucide-react";
 import styles from "./CTA.module.css";
 
 export default function CTA() {
@@ -31,9 +32,9 @@ export default function CTA() {
       
       {/* Floating Filipino-themed decorations */}
       <div className={styles.floatingDecorations} aria-hidden="true">
-        <span className={styles.deco1}>🌺</span>
-        <span className={styles.deco2}>⭐</span>
-        <span className={styles.deco3}>🇵🇭</span>
+        <span className={styles.deco1}><Heart size={24} strokeWidth={1.5} color="rgba(255,255,255,0.4)" /></span>
+        <span className={styles.deco2}><Shield size={24} strokeWidth={1.5} color="rgba(255,255,255,0.4)" /></span>
+        <span className={styles.deco3}><Star size={24} strokeWidth={1.5} color="rgba(255,255,255,0.4)" /></span>
       </div>
 
       {/* Large subtle watermark text for background depth */}
@@ -61,7 +62,7 @@ export default function CTA() {
               barangay volunteer — Gabay Sr. makes sure no Lola or Lolo is ever
               alone or unprotected.
             </p>
-            <a href="#hero" className={`btn ${styles.ctaBtn}`}>
+            <a href="/download" className={`btn ${styles.ctaBtn}`}>
               Get Early Access
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </a>
@@ -70,14 +71,14 @@ export default function CTA() {
           {/* Right: Icon Cluster */}
           <div className={`${styles.iconCluster} reveal`} style={{ transitionDelay: '0.2s' }}>
             <div className={styles.clusterCenter}>
-              <div className={styles.shieldBase}>🛡️</div>
-              <div className={styles.heartOverlay}>❤️</div>
+              <div className={styles.shieldBase}></div>
+              <div className={styles.heartOverlay}></div>
               
               {/* Orbiting elements */}
               <div className={styles.orbitCircle} />
-              <div className={styles.orbitItem1}>👨‍👩‍👧</div>
-              <div className={styles.orbitItem2}>👵</div>
-              <div className={styles.orbitItem3}>🏘️</div>
+              <div className={styles.orbitItem1}><Shield size={16} color="var(--primary-light)" /></div>
+              <div className={styles.orbitItem2}><Heart size={16} color="var(--alert)" /></div>
+              <div className={styles.orbitItem3}><Star size={16} color="var(--secondary-light)" /></div>
             </div>
           </div>
         </div>
