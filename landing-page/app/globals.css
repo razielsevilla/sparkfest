@@ -16,6 +16,15 @@
   --text-secondary: #6B7280;
   --text-light: #9CA3AF;
 
+  /* Dark Section Colors */
+  --dark-bg: #0A1F2D;
+  --dark-bg-deep: #041E1C;
+  --dark-surface: rgba(255, 255, 255, 0.04);
+  --dark-surface-glass: rgba(255, 255, 255, 0.06);
+  --dark-border: rgba(255, 255, 255, 0.08);
+  --dark-text: rgba(255, 255, 255, 0.92);
+  --dark-text-muted: rgba(255, 255, 255, 0.6);
+
   /* Glass & Surface */
   --surface: rgba(255, 255, 255, 0.7);
   --surface-glass: rgba(255, 255, 255, 0.45);
@@ -102,6 +111,11 @@ ul, ol {
   margin-bottom: 1.25rem;
 }
 
+.section-label-light {
+  color: var(--primary-light);
+  background: rgba(20, 184, 166, 0.12);
+}
+
 .section-title {
   font-family: var(--font-primary);
   font-size: clamp(2rem, 4vw, 3rem);
@@ -111,6 +125,10 @@ ul, ol {
   margin-bottom: 1rem;
 }
 
+.section-title-light {
+  color: var(--dark-text);
+}
+
 .section-subtitle {
   font-size: clamp(1rem, 1.5vw, 1.15rem);
   color: var(--text-secondary);
@@ -118,6 +136,10 @@ ul, ol {
   line-height: 1.75;
   text-align: center;
   margin: 0 auto;
+}
+
+.section-subtitle-light {
+  color: var(--dark-text-muted);
 }
 
 /* ===== Buttons ===== */
@@ -248,4 +270,94 @@ ul, ol {
 @keyframes floatCard {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-12px); }
+}
+
+/* ===== New Keyframe Animations for Redesign ===== */
+
+/* Marquee — infinite horizontal scroll */
+@keyframes marqueeLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Pulsing ring glow */
+@keyframes pulseRing {
+  0%   { transform: scale(1); opacity: 0.5; }
+  50%  { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Shimmer sweep */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Mesh gradient shift */
+@keyframes meshShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 100% 50%; }
+  50%  { background-position: 100% 0%; }
+  75%  { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Grain texture overlay */
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
+/* Neon glow pulse */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 20px var(--glow-color, rgba(20, 184, 166, 0.2)); }
+  50%      { box-shadow: 0 0 40px var(--glow-color, rgba(20, 184, 166, 0.4)), 0 0 80px var(--glow-color, rgba(20, 184, 166, 0.1)); }
+}
+
+/* Floating drift */
+@keyframes floatDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-8px) rotate(2deg); }
+  50%      { transform: translateY(-4px) rotate(-1deg); }
+  75%      { transform: translateY(-12px) rotate(1deg); }
+}
+
+/* Gradient border spin */
+@keyframes borderSpin {
+  0%   { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+/* CTA button pulse */
+@keyframes ctaPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70%  { box-shadow: 0 0 0 16px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Wave divider morph */
+@keyframes waveMorph {
+  0%, 100% { d: path("M0,40 C200,10 400,70 600,40 C800,10 1000,70 1200,40 L1200,100 L0,100 Z"); }
+  50%      { d: path("M0,40 C200,70 400,10 600,40 C800,70 1000,10 1200,40 L1200,100 L0,100 Z"); }
+}
+
+/* Dot particle float */
+@keyframes particleFloat {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
 }

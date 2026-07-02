@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Features.module.css";
 
 const features = [
@@ -11,6 +11,8 @@ const features = [
     description:
       "A secure network connecting the senior with family, remote relatives, and local volunteers to monitor well-being seamlessly.",
     accent: "teal",
+    size: "large",
+    badge: "Real-time Connectivity"
   },
   {
     icon: "/images/daily-checkin.png",
@@ -18,6 +20,8 @@ const features = [
     description:
       "A highly simplified, icon-driven interface designed specifically for elderly users to log their mood and daily activities without frustration.",
     accent: "amber",
+    size: "tall",
+    badge: "Senior-Friendly UI"
   },
   {
     icon: "/images/scam-shield.png",
@@ -25,6 +29,8 @@ const features = [
     description:
       "A built-in message checker that analyzes suspicious texts for common Philippine scam patterns, delivering an easy-to-understand risk verdict.",
     accent: "red",
+    size: "tall",
+    badge: "Powered by AI"
   },
   {
     icon: "/images/alerts-summary.png",
@@ -32,8 +38,83 @@ const features = [
     description:
       "AI-generated weekly companionship summaries in a warm tone, plus immediate push notifications for high-risk scams or missed check-ins.",
     accent: "primary",
+    size: "large",
+    badge: "Automated Insights"
   },
 ];
+
+const FeatureCard = ({ feature, index }) => {
+  const cardRef = useRef(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [cardTransform, setCardTransform] = useState("perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePosition({ x, y });
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -4;
+    const rotateY = ((x - centerX) / centerX) * 4;
+
+    setCardTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+  };
+
+  const handleMouseEnter = () => setIsHovering(true);
+  
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    setCardTransform("perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  };
+
+  return (
+    <article
+      ref={cardRef}
+      className={`${styles.card} ${styles[feature.accent]} ${styles[feature.size]} reveal`}
+      style={{ 
+        transitionDelay: `${index * 0.15}s`,
+        transform: cardTransform,
+        "--mouse-x": `${mousePosition.x}px`,
+        "--mouse-y": `${mousePosition.y}px`,
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div 
+        className={styles.mouseGlow} 
+        style={{ opacity: isHovering ? 1 : 0 }}
+        aria-hidden="true" 
+      />
+
+      <div className={styles.cardInner}>
+        {feature.badge && (
+          <span className={styles.badge}>{feature.badge}</span>
+        )}
+        <div className={styles.iconWrap}>
+          <Image
+            src={feature.icon}
+            alt={feature.title}
+            width={64}
+            height={64}
+            className={styles.iconImg}
+          />
+        </div>
+        <div className={styles.cardText}>
+          <h3>{feature.title}</h3>
+          <p>{feature.description}</p>
+        </div>
+      </div>
+
+      <div className={styles.patternOverlay} aria-hidden="true" />
+    </article>
+  );
+};
 
 export default function Features() {
   const sectionRef = useRef(null);
@@ -47,7 +128,7 @@ export default function Features() {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
     const el = sectionRef.current;
@@ -75,26 +156,9 @@ export default function Features() {
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.bentoGrid}>
           {features.map((feature, i) => (
-            <article
-              key={i}
-              className={`${styles.card} ${styles[feature.accent]} reveal`}
-              style={{ transitionDelay: `${i * 0.08}s` }}
-              data-index={String(i + 1).padStart(2, "0")}
-            >
-              <div className={styles.iconWrap}>
-                <Image
-                  src={feature.icon}
-                  alt={feature.title}
-                  width={64}
-                  height={64}
-                  className={styles.iconImg}
-                />
-              </div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </article>
+            <FeatureCard key={i} feature={feature} index={i} />
           ))}
         </div>
       </div>

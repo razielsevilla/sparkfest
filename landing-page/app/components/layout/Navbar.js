@@ -51,7 +51,7 @@ export default function Navbar() {
           </li>
           <li>
             <a href="/#cta" className={styles.cta} onClick={closeMenu}>
-              Get Started
+              Download App
             </a>
           </li>
         </ul>

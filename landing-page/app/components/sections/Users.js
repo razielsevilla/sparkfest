@@ -82,39 +82,43 @@ export default function Users() {
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.spotlightList}>
           {personas.map((persona, i) => (
-            <article
+            <div
               key={i}
-              className={`${styles.card} ${styles[persona.accent]} reveal`}
-              style={{ transitionDelay: `${i * 0.1}s` }}
+              className={`${styles.spotlightRow} ${styles[persona.accent]} ${
+                i % 2 !== 0 ? styles.reversed : ""
+              } reveal`}
+              style={{ transitionDelay: `${i * 0.12}s` }}
             >
-              {/* Colored banner top with emoji */}
-              <div className={styles.banner}>
-                <div className={styles.emojiCircle}>
-                  <span className={styles.emoji}>{persona.emoji}</span>
+              {/* Emoji orb side */}
+              <div className={styles.orbSide}>
+                <div className={styles.orbContainer}>
+                  <div className={styles.orbRing} />
+                  <div className={styles.orbRing2} />
+                  <div className={styles.orb}>
+                    <span className={styles.orbEmoji}>{persona.emoji}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Body */}
-              <div className={styles.body}>
-                <h3>{persona.name}</h3>
-                <span className={styles.role}>{persona.role}</span>
-
-                <blockquote className={styles.quote}>
+              {/* Content side */}
+              <div className={styles.contentSide}>
+                <div className={styles.roleTag}>{persona.role}</div>
+                <h3 className={styles.personaName}>{persona.name}</h3>
+                <blockquote className={styles.pullQuote}>
                   {persona.quote}
                 </blockquote>
-
-                <ul className={styles.bullets}>
+                <div className={styles.chipList}>
                   {persona.bullets.map((bullet, idx) => (
-                    <li key={idx}>
-                      <span className={styles.check} aria-hidden="true">✓</span>
+                    <span key={idx} className={styles.chip}>
+                      <span className={styles.chipDot} />
                       {bullet}
-                    </li>
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       </div>

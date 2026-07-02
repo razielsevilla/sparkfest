@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./HowItWorks.module.css";
 
 const steps = [
@@ -34,12 +34,85 @@ const steps = [
   },
 ];
 
+const StepCard = ({ step, index }) => {
+  const cardRef = useRef(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [cardTransform, setCardTransform] = useState("perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePosition({ x, y });
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Subtle tilt for wide horizontal cards
+    const rotateX = ((y - centerY) / centerY) * -3;
+    const rotateY = ((x - centerX) / centerX) * 3;
+
+    setCardTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`);
+  };
+
+  const handleMouseEnter = () => setIsHovering(true);
+  
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    setCardTransform("perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  };
+
+  return (
+    <article
+      ref={cardRef}
+      className={`${styles.stepCard} reveal`}
+      style={{
+        top: `calc(120px + ${index * 30}px)`,
+        zIndex: index + 1,
+        transform: cardTransform,
+        "--mouse-x": `${mousePosition.x}px`,
+        "--mouse-y": `${mousePosition.y}px`,
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div 
+        className={styles.mouseGlow} 
+        style={{ opacity: isHovering ? 1 : 0 }}
+        aria-hidden="true" 
+      />
+
+      {/* Giant outline number in the background */}
+      <div className={styles.bgNumber} aria-hidden="true">
+        {step.number}
+      </div>
+
+      <div className={styles.cardInner}>
+        <div className={styles.iconWrap}>
+          <span className={styles.stepEmoji}>{step.emoji}</span>
+        </div>
+        <div className={styles.cardText}>
+          <h3 className={styles.stepTitle}>
+            <span className={styles.stepNumberBadge}>Step {step.number}</span>
+            {step.title}
+          </h3>
+          <p className={styles.stepDesc}>{step.description}</p>
+        </div>
+      </div>
+
+      <div className={styles.patternOverlay} aria-hidden="true" />
+    </article>
+  );
+};
+
 export default function HowItWorks() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    // Observer for the header
-    const headerObserver = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -47,43 +120,17 @@ export default function HowItWorks() {
           }
         });
       },
-      { threshold: 0.15 }
-    );
-
-    // Observer for individual steps — staggered reveal
-    const stepObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Use the data-index to create a stagger delay
-            const index = parseInt(entry.target.dataset.index, 10) || 0;
-            setTimeout(() => {
-              entry.target.classList.add(styles.visible);
-            }, index * 150);
-            stepObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.2, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
     const el = sectionRef.current;
     if (el) {
-      // Observe header reveal elements
       el.querySelectorAll(".reveal").forEach((child) =>
-        headerObserver.observe(child)
-      );
-
-      // Observe each step card individually
-      el.querySelectorAll(`.${styles.step}`).forEach((child) =>
-        stepObserver.observe(child)
+        observer.observe(child)
       );
     }
 
-    return () => {
-      headerObserver.disconnect();
-      stepObserver.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -98,23 +145,9 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className={styles.steps}>
+        <div className={styles.stackedContainer}>
           {steps.map((step, i) => (
-            <div
-              key={i}
-              className={styles.step}
-              data-index={i}
-            >
-              <div className={styles.stepNumber}>{step.number}</div>
-              {i < steps.length - 1 && (
-                <div className={styles.stepConnector} aria-hidden="true" />
-              )}
-              <div className={styles.stepTitle}>
-                <span className={styles.stepEmoji}>{step.emoji}</span>
-                {step.title}
-              </div>
-              <p className={styles.stepDesc}>{step.description}</p>
-            </div>
+            <StepCard key={i} step={step} index={i} />
           ))}
         </div>
       </div>

@@ -6,15 +6,17 @@ import styles from "./Footer.module.css";
 export default function Footer() {
   return (
     <footer className={styles.footer}>
-      {/* Decorative top border glow */}
-      <div className={styles.topGlow} />
-
-      <div className="container">
+      {/* Decorative gradient mesh background */}
+      <div className={styles.meshBg} aria-hidden="true" />
+      
+      <div className={`container ${styles.container}`}>
         <div className={styles.mainGrid}>
           {/* Brand Column */}
           <div className={styles.brandCol}>
             <a href="#" className={styles.logo} aria-label="Gabay Sr. home">
-              <Image src="/images/logo.png" alt="Gabay Sr. Logo" width={44} height={44} className={styles.logoImage} />
+              <div className={styles.logoBadge}>
+                <Image src="/images/logo.png" alt="Gabay Sr. Logo" width={40} height={40} className={styles.logoImage} />
+              </div>
               <span className={styles.logoText}>Gabay Sr.</span>
             </a>
             <p className={styles.mission}>
@@ -71,9 +73,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className={styles.bottomBar}>
-          <p className={styles.copyright}>
-            &copy; {new Date().getFullYear()} Gabay Sr. All rights reserved. Made with ❤️ in the Philippines.
-          </p>
+          <div className={styles.copyright}>
+            &copy; {new Date().getFullYear()} Gabay Sr. All rights reserved.
+          </div>
+
           <div className={styles.legalLinks}>
             <a href="/terms">Terms</a>
             <a href="/privacy">Privacy</a>
