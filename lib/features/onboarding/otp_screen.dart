@@ -2,8 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
-import 'package:gabaysr/features/onboarding/create_profile_screen.dart';
-import 'package:gabaysr/features/summary/family_dashboard.dart';
 
 class OtpScreen extends StatefulWidget {
   final AppState appState;
@@ -59,25 +57,7 @@ class _OtpScreenState extends State<OtpScreen> {
       widget.appState.mockSignIn(widget.phoneNumber);
 
       if (mounted) {
-        if (widget.userExists) {
-          // Already registered -> Go directly to Family Dashboard, clearing stack
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FamilyDashboard(appState: widget.appState),
-            ),
-            (route) => false,
-          );
-        } else {
-          // New user -> Go to Create Profile Screen, clearing stack
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CreateProfileScreen(appState: widget.appState),
-            ),
-            (route) => false,
-          );
-        }
+        Navigator.popUntil(context, (route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
