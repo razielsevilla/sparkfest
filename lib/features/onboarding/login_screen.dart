@@ -140,75 +140,68 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Country Code Prefix (+63)
-                              Container(
-                                height: 64,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: _borderColor),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(12),
-                                    bottomLeft: Radius.circular(12),
-                                  ),
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  '+63',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito Sans',
-                                    fontSize: 20,
-                                    color: _textPrimaryColor,
-                                  ),
-                                ),
-                              ),
-                              // Text Field Input
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _phoneController,
-                                  keyboardType: TextInputType.phone,
-                                  maxLength: 10,
-                                  style: const TextStyle(
-                                    fontFamily: 'Nunito Sans',
-                                    fontSize: 20,
-                                  ),
-                                  decoration: const InputDecoration(
-                                    hintText: '9XX-XXX-XXXX',
-                                    counterText: '',
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(12),
-                                        bottomRight: Radius.circular(12),
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            maxLength: 10,
+                            style: const TextStyle(
+                              fontFamily: 'Nunito Sans',
+                              fontSize: 20,
+                            ),
+                            decoration: const InputDecoration(
+                              hintText: '9XX-XXX-XXXX',
+                              counterText: '',
+                              fillColor: Colors.white,
+                              filled: true,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                              prefixIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      '+63',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito Sans',
+                                        fontSize: 20,
+                                        color: _textPrimaryColor,
                                       ),
-                                      borderSide: BorderSide(color: _borderColor),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(12),
-                                        bottomRight: Radius.circular(12),
-                                      ),
-                                      borderSide: BorderSide(color: _primaryColor, width: 2),
                                     ),
                                   ),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Ilagay ang iyong numero';
-                                    }
-                                    final plainNum = value.replaceAll('-', '').trim();
-                                    if (plainNum.length != 10 || !plainNum.startsWith('9')) {
-                                      return 'Dapat magsimula sa 9 at may 10 digits';
-                                    }
-                                    return null;
-                                  },
-                                ),
+                                  SizedBox(
+                                    height: 32,
+                                    child: VerticalDivider(
+                                      width: 1,
+                                      thickness: 1.5,
+                                      color: _borderColor,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                ],
                               ),
-                            ],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: _borderColor),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: _primaryColor, width: 2),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: _borderColor),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Ilagay ang iyong numero';
+                              }
+                              final plainNum = value.replaceAll('-', '').trim();
+                              if (plainNum.length != 10 || !plainNum.startsWith('9')) {
+                                return 'Dapat magsimula sa 9 at may 10 digits';
+                              }
+                              return null;
+                            },
                           ),
                         ],
                       ),
@@ -265,58 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 32),
-
-                      // Support / Help Links
-                      Column(
-                        children: [
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              const Text(
-                                'Wala pang account? ',
-                                style: TextStyle(
-                                  fontFamily: 'Nunito Sans',
-                                  fontSize: 16,
-                                  color: _textSecondaryColor,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  // TODO: Navigate to Registration Screen
-                                },
-                                child: const Text(
-                                  'Mag-sign up dito',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito Sans',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: _primaryColor,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          TextButton.icon(
-                            onPressed: () {
-                              // TODO: Open Help / FAQ
-                            },
-                            icon: const Icon(Icons.help_outline, color: _textSecondaryColor),
-                            label: const Text(
-                              'Kailangan ng tulong?',
-                              style: TextStyle(
-                                fontFamily: 'Nunito Sans',
-                                fontSize: 16,
-                                color: _textSecondaryColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: 64),
 
                       // Footer Copyright Notice
                       const Text(

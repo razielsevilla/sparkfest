@@ -27,6 +27,7 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
   static const Color _textSecondaryColor = Color(0xFF3E4947); // on-surface-variant
   static const Color _errorColor = Color(0xFFBA1A1A); // error
   static const Color _errorContainerColor = Color(0xFFFFDAD6); // error-container
+  static const double _horizontalPadding = 24.0;
 
   @override
   void initState() {
@@ -170,7 +171,7 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
         "Wala pang sapat na logs ngayong linggo upang makabuo ng AI summary.";
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding, vertical: 24.0),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -220,16 +221,8 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                       ),
                       const SizedBox(height: 24),
 
-                      // Real AI Summary text
-                      Text(
-                        latestSummary,
-                        style: const TextStyle(
-                          fontFamily: 'Nunito Sans',
-                          fontSize: 18,
-                          color: _textPrimaryColor,
-                          height: 1.5,
-                        ),
-                      ),
+                      // Styled/Segmented AI Summary text
+                      _buildSummaryContent(latestSummary),
                       const SizedBox(height: 24),
 
                       // Generator button
@@ -270,6 +263,87 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
     );
   }
 
+  // Parses and returns a list of formatted widgets for the Weekly AI Summary card
+  Widget _buildSummaryContent(String summaryText) {
+    if (summaryText == "Wala pang sapat na logs ngayong linggo upang makabuo ng AI summary.") {
+      return Text(
+        summaryText,
+        style: const TextStyle(
+          fontFamily: 'Nunito Sans',
+          fontSize: 18,
+          color: _textPrimaryColor,
+          height: 1.6,
+        ),
+      );
+    }
+
+    final segments = _parseSummary(summaryText);
+
+    if (segments.length <= 1) {
+      return Text(
+        summaryText,
+        style: const TextStyle(
+          fontFamily: 'Nunito Sans',
+          fontSize: 18,
+          color: _textPrimaryColor,
+          height: 1.6,
+        ),
+      );
+    }
+
+    return Column(
+      children: segments.map((seg) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: seg.backgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  seg.icon,
+                  color: seg.iconColor,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      seg.title,
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: seg.iconColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      seg.content,
+                      style: const TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 16,
+                        color: _textPrimaryColor,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   // Tab 2: Check-In Logs History list
   Widget _buildHistoryTab() {
     final senior = widget.appState.activeSenior;
@@ -285,46 +359,57 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
         }
         final checkIns = snapshot.data ?? [];
         if (checkIns.isEmpty) {
-          return const Center(child: Text('Wala pang check-ins na naitala.'));
+          return const Center(
+            child: EmptyStateView(
+              icon: Icons.calendar_today_outlined,
+              title: 'Wala pang check-ins na naitala.',
+              subtitle: 'Dito makikita ang araw-araw na mood at kalagayan ni Lola/Lolo.',
+            ),
+          );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(24),
-          itemCount: checkIns.length,
-          itemBuilder: (context, index) {
-            final c = checkIns[index];
-            return Card(
-              elevation: 0,
-              color: Colors.white,
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.grey.shade200),
-              ),
-              child: ListTile(
-                leading: Text(
-                  c.mood == 'Masaya'
-                      ? '😊'
-                      : c.mood == 'Okay lang'
-                          ? '😐'
-                          : '😢',
-                  style: const TextStyle(fontSize: 28),
-                ),
-                title: Text(
-                  'Mood: ${c.mood}',
-                  style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  'Mga ginawa: ${c.activities.join(", ")}\nMensahe: ${c.note ?? "Walang mensahe"}',
-                  style: const TextStyle(fontFamily: 'Nunito Sans'),
-                ),
-                trailing: Text(
-                  DateFormat('MM/dd').format(c.createdAt),
-                  style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
-                ),
-              ),
-            );
-          },
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding, vertical: 24.0),
+              itemCount: checkIns.length,
+              itemBuilder: (context, index) {
+                final c = checkIns[index];
+                return Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  child: ListTile(
+                    leading: Text(
+                      c.mood == 'Masaya'
+                          ? '😊'
+                          : c.mood == 'Okay lang'
+                              ? '😐'
+                              : '😢',
+                      style: const TextStyle(fontSize: 28),
+                    ),
+                    title: Text(
+                      'Mood: ${c.mood}',
+                      style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      'Mga ginawa: ${c.activities.join(", ")}\nMensahe: ${c.note ?? "Walang mensahe"}',
+                      style: const TextStyle(fontFamily: 'Nunito Sans'),
+                    ),
+                    trailing: Text(
+                      DateFormat('MM/dd').format(c.createdAt),
+                      style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         );
       },
     );
@@ -345,50 +430,61 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
         }
         final logs = snapshot.data ?? [];
         if (logs.isEmpty) {
-          return const Center(child: Text('Wala pang naitatalang scam checks.'));
+          return const Center(
+            child: EmptyStateView(
+              icon: Icons.shield_outlined,
+              title: 'Wala pang naitatalang scam checks.',
+              subtitle: 'Ligtas ang device ni Lola/Lolo. Dito lalabas ang mga kahina-hinalang mensahe.',
+            ),
+          );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(24),
-          itemCount: logs.length,
-          itemBuilder: (context, index) {
-            final log = logs[index];
-            final isHigh = log.riskLevel == 'Mataas';
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding, vertical: 24.0),
+              itemCount: logs.length,
+              itemBuilder: (context, index) {
+                final log = logs[index];
+                final isHigh = log.riskLevel == 'Mataas';
 
-            return Card(
-              elevation: 0,
-              color: Colors.white,
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.grey.shade200),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  isHigh ? Icons.warning : Icons.shield_outlined,
-                  color: isHigh ? _errorColor : _primaryColor,
-                ),
-                title: Text(
-                  log.riskLevel.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontWeight: FontWeight.bold,
-                    color: isHigh ? _errorColor : _primaryColor,
+                return Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.shade200),
                   ),
-                ),
-                subtitle: Text(
-                  'Mensahe: "${log.rawMessageText}"\nSender: ${log.senderNumber ?? "Hindi kilala"}',
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontFamily: 'Nunito Sans'),
-                ),
-                trailing: Text(
-                  DateFormat('MM/dd').format(log.createdAt),
-                  style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
-                ),
-              ),
-            );
-          },
+                  child: ListTile(
+                    leading: Icon(
+                      isHigh ? Icons.warning : Icons.shield_outlined,
+                      color: isHigh ? _errorColor : _primaryColor,
+                    ),
+                    title: Text(
+                      log.riskLevel.toUpperCase(),
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontWeight: FontWeight.bold,
+                        color: isHigh ? _errorColor : _primaryColor,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Mensahe: "${log.rawMessageText}"\nSender: ${log.senderNumber ?? "Hindi kilala"}',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontFamily: 'Nunito Sans'),
+                    ),
+                    trailing: Text(
+                      DateFormat('MM/dd').format(log.createdAt),
+                      style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         );
       },
     );
@@ -399,50 +495,61 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
     final alerts = widget.appState.alerts;
 
     if (alerts.isEmpty) {
-      return const Center(child: Text('Walang mga babala o alerts ngayon.'));
+      return const Center(
+        child: EmptyStateView(
+          icon: Icons.notifications_none_outlined,
+          title: 'Walang mga babala o alerts ngayon.',
+          subtitle: 'Lahat ay maayos at ligtas. Aabisuhan ka namin kapag may kailangang pansinin.',
+        ),
+      );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(24),
-      itemCount: alerts.length,
-      itemBuilder: (context, index) {
-        final alert = alerts[index];
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding, vertical: 24.0),
+          itemCount: alerts.length,
+          itemBuilder: (context, index) {
+            final alert = alerts[index];
 
-        return Card(
-          elevation: 0,
-          color: alert.resolved ? Colors.grey.shade100 : _errorContainerColor.withValues(alpha: 0.2),
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: alert.resolved ? Colors.grey.shade200 : _errorColor.withValues(alpha: 0.1)),
-          ),
-          child: ListTile(
-            leading: Icon(
-              Icons.warning,
-              color: alert.resolved ? Colors.grey : _errorColor,
-            ),
-            title: Text(
-              alert.message,
-              style: TextStyle(
-                fontFamily: 'Nunito Sans',
-                fontWeight: FontWeight.bold,
-                color: alert.resolved ? Colors.grey : _textPrimaryColor,
-                decoration: alert.resolved ? TextDecoration.lineThrough : null,
+            return Card(
+              elevation: 0,
+              color: alert.resolved ? Colors.grey.shade100 : _errorContainerColor.withValues(alpha: 0.2),
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: alert.resolved ? Colors.grey.shade200 : _errorColor.withValues(alpha: 0.1)),
               ),
-            ),
-            subtitle: Text(
-              'Nalika: ${DateFormat('MM/dd HH:mm').format(alert.createdAt)}',
-              style: const TextStyle(fontFamily: 'Nunito Sans'),
-            ),
-            trailing: alert.resolved
-                ? const Icon(Icons.check, color: Colors.green)
-                : TextButton(
-                    onPressed: () => widget.appState.resolveAlert(alert.id),
-                    child: const Text('RESOLBAHAN'),
+              child: ListTile(
+                leading: Icon(
+                  Icons.warning,
+                  color: alert.resolved ? Colors.grey : _errorColor,
+                ),
+                title: Text(
+                  alert.message,
+                  style: TextStyle(
+                    fontFamily: 'Nunito Sans',
+                    fontWeight: FontWeight.bold,
+                    color: alert.resolved ? Colors.grey : _textPrimaryColor,
+                    decoration: alert.resolved ? TextDecoration.lineThrough : null,
                   ),
-          ),
-        );
-      },
+                ),
+                subtitle: Text(
+                  'Nalika: ${DateFormat('MM/dd HH:mm').format(alert.createdAt)}',
+                  style: const TextStyle(fontFamily: 'Nunito Sans'),
+                ),
+                trailing: alert.resolved
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : TextButton(
+                        onPressed: () => widget.appState.resolveAlert(alert.id),
+                        child: const Text('RESOLBAHAN'),
+                      ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -451,77 +558,88 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
     final circle = widget.appState.trustedCircle;
     final senior = widget.appState.activeSenior;
 
-    return Column(
-      children: [
-        if (senior != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () => _showAddCircleMemberBottomSheet(context, senior.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: const Icon(Icons.person_add_alt_1),
-                label: const Text(
-                  'MAGDAGDAG NG KASAPI SA CIRCLE',
-                  style: TextStyle(
-                    fontFamily: 'Nunito Sans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: Column(
+          children: [
+            if (senior != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(_horizontalPadding, 24, _horizontalPadding, 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showAddCircleMemberBottomSheet(context, senior.id),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.person_add_alt_1),
+                    label: const Text(
+                      'MAGDAGDAG NG KASAPI SA CIRCLE',
+                      style: TextStyle(
+                        fontFamily: 'Nunito Sans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        Expanded(
-          child: circle.isEmpty
-              ? const Center(child: Text('Walang mga kasapi sa Circle.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  itemCount: circle.length,
-                  itemBuilder: (context, index) {
-                    final m = circle[index];
-                    final isFamily = m.role == 'family';
+            Expanded(
+              child: circle.isEmpty
+                  ? const Center(
+                      child: EmptyStateView(
+                        icon: Icons.people_outline,
+                        title: 'Walang mga kasapi sa Circle.',
+                        subtitle: 'Magdagdag ng mga kapamilya o volunteer upang magtulungan sa paggabay.',
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(_horizontalPadding, 8, _horizontalPadding, 24),
+                      itemCount: circle.length,
+                      itemBuilder: (context, index) {
+                        final m = circle[index];
+                        final isFamily = m.role == 'family';
 
-                    return Card(
-                      elevation: 0,
-                      color: Colors.white,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200),
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: isFamily ? Colors.amber.shade100 : Colors.teal.shade100,
-                          child: Icon(
-                            isFamily ? Icons.family_restroom : Icons.volunteer_activism,
-                            color: isFamily ? Colors.amber.shade900 : Colors.teal.shade900,
+                        return Card(
+                          elevation: 0,
+                          color: Colors.white,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.grey.shade200),
                           ),
-                        ),
-                        title: Text(
-                          m.name,
-                          style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          'Relasyon: ${m.relationship} • Uri: ${m.role == "family" ? "Kapamilya" : "Volunteer"}',
-                          style: const TextStyle(fontFamily: 'Nunito Sans'),
-                        ),
-                        trailing: Text(
-                          m.phoneNumber,
-                          style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: isFamily ? Colors.amber.shade100 : Colors.teal.shade100,
+                              child: Icon(
+                                isFamily ? Icons.family_restroom : Icons.volunteer_activism,
+                                color: isFamily ? Colors.amber.shade900 : Colors.teal.shade900,
+                              ),
+                            ),
+                            title: Text(
+                              m.name,
+                              style: const TextStyle(fontFamily: 'Nunito Sans', fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              'Relasyon: ${m.relationship} • Uri: ${m.role == "family" ? "Kapamilya" : "Volunteer"}',
+                              style: const TextStyle(fontFamily: 'Nunito Sans'),
+                            ),
+                            trailing: Text(
+                              m.phoneNumber,
+                              style: const TextStyle(fontFamily: 'Nunito Sans', color: _textSecondaryColor),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -724,7 +842,6 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
                             fontFamily: 'Nunito Sans',
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -736,6 +853,193 @@ class _FamilyDashboardState extends State<FamilyDashboard> with SingleTickerProv
           },
         );
       },
+    );
+  }
+
+  // Helper method to parse AI generated summary text into distinct segments
+  List<SummarySegment> _parseSummary(String summaryText) {
+    final sentences = summaryText
+        .split(RegExp(r'(?<=[.!?])\s+'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+
+    final List<String> moodSentences = [];
+    final List<String> activitySentences = [];
+    final List<String> safetySentences = [];
+    final List<String> generalSentences = [];
+
+    for (final sentence in sentences) {
+      final lower = sentence.toLowerCase();
+      if (lower.contains('scam') ||
+          lower.contains('banta') ||
+          lower.contains('hinala') ||
+          lower.contains('babala') ||
+          lower.contains('alert') ||
+          lower.contains('panganib') ||
+          lower.contains('delikado')) {
+        safetySentences.add(sentence);
+      } else if (lower.contains('masaya') ||
+          lower.contains('maganda') ||
+          lower.contains('malungkot') ||
+          lower.contains('okay') ||
+          lower.contains('naging') ||
+          lower.contains('ramdam') ||
+          lower.contains('pakiramdam') ||
+          lower.contains('mood') ||
+          lower.contains('kalagayan') ||
+          lower.contains('malusog')) {
+        moodSentences.add(sentence);
+      } else if (lower.contains('ginawa') ||
+          lower.contains('nagpahinga') ||
+          lower.contains('circle') ||
+          lower.contains('kasapi') ||
+          lower.contains('check-in') ||
+          lower.contains('aktibidad') ||
+          lower.contains('lakad') ||
+          lower.contains('kain') ||
+          lower.contains('tulog') ||
+          lower.contains('pamilya')) {
+        activitySentences.add(sentence);
+      } else {
+        generalSentences.add(sentence);
+      }
+    }
+
+    final List<SummarySegment> segments = [];
+
+    if (moodSentences.isNotEmpty) {
+      segments.add(SummarySegment(
+        category: 'mood',
+        icon: Icons.emoji_emotions_outlined,
+        iconColor: const Color(0xFF0F766E), // teal
+        backgroundColor: const Color(0xFFF0FDFA),
+        title: 'Mood at Emosyon',
+        content: moodSentences.join(' '),
+      ));
+    }
+
+    if (activitySentences.isNotEmpty) {
+      segments.add(SummarySegment(
+        category: 'activity',
+        icon: Icons.directions_run_outlined,
+        iconColor: const Color(0xFFD97706), // amber
+        backgroundColor: const Color(0xFFFEF3C7),
+        title: 'Aktibidad at Kalusugan',
+        content: activitySentences.join(' '),
+      ));
+    }
+
+    if (safetySentences.isNotEmpty) {
+      segments.add(SummarySegment(
+        category: 'safety',
+        icon: Icons.shield_outlined,
+        iconColor: const Color(0xFFDC2626), // red
+        backgroundColor: const Color(0xFFFEE2E2),
+        title: 'Seguridad at Scam Checks',
+        content: safetySentences.join(' '),
+      ));
+    }
+
+    if (generalSentences.isNotEmpty) {
+      segments.add(SummarySegment(
+        category: 'general',
+        icon: Icons.info_outline,
+        iconColor: const Color(0xFF005C55),
+        backgroundColor: const Color(0xFFF0FDFA),
+        title: 'Iba pang Impormasyon',
+        content: generalSentences.join(' '),
+      ));
+    }
+
+    return segments;
+  }
+}
+
+// Representing a parsed bento-style AI Weekly Summary segment
+class SummarySegment {
+  final String category;
+  final IconData icon;
+  final Color iconColor;
+  final Color backgroundColor;
+  final String title;
+  final String content;
+
+  SummarySegment({
+    required this.category,
+    required this.icon,
+    required this.iconColor,
+    required this.backgroundColor,
+    required this.title,
+    required this.content,
+  });
+}
+
+// Reusable empty state view to consistently present information when lists are empty
+class EmptyStateView extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+
+  const EmptyStateView({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const Color primaryColor = Color(0xFF005C55);
+    const Color textPrimaryColor = Color(0xFF1B1B1D);
+    const Color textSecondaryColor = Color(0xFF3E4947);
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 64,
+                color: primaryColor,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Nunito Sans',
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: textPrimaryColor,
+              ),
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                subtitle!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Nunito Sans',
+                  fontSize: 16,
+                  color: textSecondaryColor,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
