@@ -6,9 +6,10 @@ import 'package:gabaysr/models/senior_profile.dart';
 import 'package:gabaysr/models/trusted_circle_member.dart';
 import 'package:gabaysr/models/alert.dart';
 import 'package:gabaysr/core/services/gemini_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 enum AppMode { senior, family }
+enum OnboardingStep { none, createProfile, addCircle, complete }
 
 class AppState extends ChangeNotifier {
   final AuthService authService;
@@ -21,7 +22,11 @@ class AppState extends ChangeNotifier {
   List<TrustedCircleMember> _trustedCircle = [];
   List<Alert> _alerts = [];
   String? _latestWeeklySummary;
-  
+
+  // Authentication gating state
+  bool _isSessionInitialized = false;
+  OnboardingStep _onboardingStep = OnboardingStep.none;
+
   // Active listeners/subscriptions
   StreamSubscription? _authSubscription;
   StreamSubscription? _seniorsSubscription;
@@ -29,49 +34,76 @@ class AppState extends ChangeNotifier {
   StreamSubscription? _alertsSubscription;
   StreamSubscription? _summarySubscription;
 
-  AppState({required this.authService, required this.databaseService}) {
-    loadPersistedSession();
-    // Listen for auth state changes
-    _authSubscription = authService.onAuthStateChanged.listen((userPhone) async {
-      final prefs = await SharedPreferences.getInstance();
-      final hasSavedPhone = prefs.containsKey('saved_user_phone');
+  final _secureStorage = const FlutterSecureStorage();
 
+  AppState({required this.authService, required this.databaseService}) {
+    // Perform initial async startup check
+    initializeSession();
+
+    // Listen to Firebase Auth state change events
+    _authSubscription = authService.onAuthStateChanged.listen((userPhone) async {
+      final savedPhone = await _secureStorage.read(key: 'saved_user_phone');
       if (userPhone != null) {
         _currentUserPhone = userPhone;
         await _savePersistedSession(userPhone);
+        await _resolveOnboardingStatus(userPhone);
         _subscribeToSeniors(userPhone);
-        notifyListeners();
-      } else if (!hasSavedPhone) {
+      } else if (savedPhone == null) {
         _clearUserSession();
+        _onboardingStep = OnboardingStep.none;
         notifyListeners();
       }
     });
   }
 
-  Future<void> loadPersistedSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedPhone = prefs.getString('saved_user_phone');
-    if (savedPhone != null) {
-      _currentUserPhone = savedPhone;
-      _subscribeToSeniors(savedPhone);
+  // Asynchronous gate check on startup
+  Future<void> initializeSession() async {
+    try {
+      final savedPhone = await _secureStorage.read(key: 'saved_user_phone');
+      if (savedPhone != null) {
+        _currentUserPhone = savedPhone;
+        await _resolveOnboardingStatus(savedPhone);
+        _subscribeToSeniors(savedPhone);
+      } else {
+        _onboardingStep = OnboardingStep.none;
+      }
+    } catch (e) {
+      _onboardingStep = OnboardingStep.none;
+    } finally {
+      _isSessionInitialized = true;
       notifyListeners();
     }
   }
 
+  Future<void> _resolveOnboardingStatus(String phone) async {
+    final seniors = await databaseService.getSeniorsForMember(phone);
+    if (seniors.isEmpty) {
+      _onboardingStep = OnboardingStep.createProfile;
+    } else {
+      final senior = seniors.first;
+      final circle = await databaseService.getTrustedCircle(senior.id);
+      if (circle.isEmpty) {
+        _onboardingStep = OnboardingStep.addCircle;
+      } else {
+        _onboardingStep = OnboardingStep.complete;
+      }
+    }
+  }
+
   Future<void> _savePersistedSession(String phone) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('saved_user_phone', phone);
+    await _secureStorage.write(key: 'saved_user_phone', value: phone);
   }
 
   Future<void> _clearPersistedSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('saved_user_phone');
+    await _secureStorage.delete(key: 'saved_user_phone');
   }
 
   // Getters
   AppMode get appMode => _appMode;
   String? get currentUserPhone => _currentUserPhone;
   bool get isAuthenticated => _currentUserPhone != null;
+  bool get isSessionInitialized => _isSessionInitialized;
+  OnboardingStep get onboardingStep => _onboardingStep;
   SeniorProfile? get activeSenior => _activeSenior;
   List<SeniorProfile> get monitoredSeniors => _monitoredSeniors;
   List<TrustedCircleMember> get trustedCircle => _trustedCircle;
@@ -114,6 +146,7 @@ class AppState extends ChangeNotifier {
   void mockSignIn(String phone) async {
     _currentUserPhone = phone;
     await _savePersistedSession(phone);
+    await _resolveOnboardingStatus(phone);
     _subscribeToSeniors(phone);
     notifyListeners();
   }
@@ -121,6 +154,7 @@ class AppState extends ChangeNotifier {
   Future<void> logOut() async {
     await _clearPersistedSession();
     _clearUserSession();
+    _onboardingStep = OnboardingStep.none;
     await authService.signOut();
     notifyListeners();
   }
@@ -129,6 +163,14 @@ class AppState extends ChangeNotifier {
   // DATA MANAGEMENT METHODS
   // ==========================================
 
+  Future<void> createSeniorProfileOnly(SeniorProfile profile) async {
+    await databaseService.createSeniorProfile(profile);
+    _onboardingStep = OnboardingStep.addCircle;
+    _activeSenior = profile;
+    _monitoredSeniors = [profile];
+    notifyListeners();
+  }
+
   Future<void> registerSenior(SeniorProfile profile, TrustedCircleMember mainMember) async {
     // Write Senior Profile
     await databaseService.createSeniorProfile(profile);
@@ -136,6 +178,7 @@ class AppState extends ChangeNotifier {
     await databaseService.addTrustedCircleMember(mainMember);
     // Synchronously populate monitored seniors to trigger correct route instantly in MyApp
     _monitoredSeniors = [profile];
+    _onboardingStep = OnboardingStep.complete;
     // Set as the active profile automatically
     setActiveSenior(profile);
   }

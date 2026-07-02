@@ -9,12 +9,14 @@ class OtpScreen extends StatefulWidget {
   final AppState appState;
   final String verificationId;
   final String phoneNumber;
+  final bool userExists;
 
   const OtpScreen({
     super.key,
     required this.appState,
     required this.verificationId,
     required this.phoneNumber,
+    required this.userExists,
   });
 
   @override
@@ -53,14 +55,11 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     try {
-      // 1. Fetch from Firestore first to see if a circle/senior profile exists
-      final seniors = await widget.appState.databaseService.getSeniorsForMember(widget.phoneNumber);
-
-      // 2. Perform the mock sign in state registration
+      // 1. Perform mock sign in (persists session)
       widget.appState.mockSignIn(widget.phoneNumber);
 
       if (mounted) {
-        if (seniors.isNotEmpty) {
+        if (widget.userExists) {
           // Already registered -> Go directly to Family Dashboard, clearing stack
           Navigator.pushAndRemoveUntil(
             context,
@@ -70,7 +69,7 @@ class _OtpScreenState extends State<OtpScreen> {
             (route) => false,
           );
         } else {
-          // New user -> Go to Create Profile Screen, clearing stack so it is the new root
+          // New user -> Go to Create Profile Screen, clearing stack
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(

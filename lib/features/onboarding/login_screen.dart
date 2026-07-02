@@ -44,17 +44,32 @@ class _LoginScreenState extends State<LoginScreen> {
       phone = '+63$phone';
     }
 
-    setState(() => _isLoading = false);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OtpScreen(
-          appState: widget.appState,
-          verificationId: 'dummy_verification_id',
-          phoneNumber: phone,
-        ),
-      ),
-    );
+    try {
+      final seniors = await widget.appState.databaseService.getSeniorsForMember(phone);
+      final userExists = seniors.isNotEmpty;
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpScreen(
+              appState: widget.appState,
+              verificationId: 'dummy_verification_id',
+              phoneNumber: phone,
+              userExists: userExists,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'May error sa pag-konekta. Pakisubukan muli.';
+        });
+      }
+    }
   }
 
   @override
