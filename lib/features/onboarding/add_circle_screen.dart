@@ -3,6 +3,7 @@ import 'package:gabaysr/core/theme/app_theme.dart';
 import 'package:gabaysr/core/services/app_state.dart';
 import 'package:gabaysr/models/senior_profile.dart';
 import 'package:gabaysr/models/trusted_circle_member.dart';
+import 'package:gabaysr/features/summary/family_dashboard.dart';
 
 class AddCircleScreen extends StatefulWidget {
   final AppState appState;
@@ -88,7 +89,13 @@ class _AddCircleScreenState extends State<AddCircleScreen> {
             backgroundColor: _primaryColor,
           ),
         );
-        Navigator.popUntil(context, (route) => route.isFirst);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FamilyDashboard(appState: widget.appState),
+          ),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
